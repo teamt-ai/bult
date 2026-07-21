@@ -102,10 +102,10 @@ export async function POST(req: NextRequest) {
       .select('id')
       .single()
 
-    // 6. Call Gemini 2.5 Flash via Google SDK
+    // 6. Call Gemini 1.5 Flash via Google SDK
     const aiClient = new GoogleGenerativeAI(apiKey)
     const model = aiClient.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-1.5-flash',
       systemInstruction: `You are the official AI Assistant for ${ai.name}.
 Your job is to answer customer questions using ONLY the provided business sources.
 
