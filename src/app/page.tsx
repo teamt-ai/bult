@@ -192,9 +192,9 @@ export default function LandingPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="text-xs uppercase tracking-wider font-extrabold text-primary">Engineered Excellence</span>
-          <h2 className="text-4xl font-extrabold mt-2">Engineered for world class businesses, optimized for maximum conversion</h2>
+          <h2 className="text-4xl font-extrabold mt-2">Engineered for world class businesses</h2>
           <p className="text-slate-500 dark:text-slate-400 mt-4 text-base">
-            Every layer of Bult is optimized to give customers accurate details without wasting your API budget.
+            Every layer of Bult is optimized to give customers accurate details and maximum conversion.
           </p>
         </div>
 
