@@ -502,9 +502,9 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
       )}
 
       {/* 2. Main Chat canvas area */}
-      <div className="flex-1 h-full flex flex-col overflow-hidden bg-white dark:bg-[#212121]">
+      <div className="flex-1 h-full flex flex-col overflow-hidden" style={{ background: theme.bgColor }}>
         {/* Top Navbar */}
-        <div className="h-14 border-b border-slate-200/60 dark:border-slate-800/80 bg-white dark:bg-[#212121] flex items-center justify-between px-6 shrink-0 z-20">
+        <div className="h-14 border-b flex items-center justify-between px-6 shrink-0 z-20" style={{ borderBottomColor: `${theme.bubbleBot}33`, background: theme.bgColor }}>
           <div className="flex items-center space-x-3 min-w-0">
             {visitorEmail && (
               <button
@@ -530,7 +530,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
             </div>
 
             <div className="min-w-0">
-              <h1 className="font-extrabold text-sm md:text-base leading-tight truncate">
+              <h1 className="font-extrabold text-sm md:text-base leading-tight truncate" style={{ color: theme.textColorBot }}>
                 {ai.ai_name || `${ai.name} Assistant`}
               </h1>
               <span className="text-[10px] opacity-60 flex items-center gap-1.5 mt-0.5 truncate text-slate-500">
@@ -697,10 +697,10 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                     </div>
 
                     <div className="space-y-2">
-                      <h2 className="text-2xl md:text-4.5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+                      <h2 className="text-2xl md:text-4.5xl font-black tracking-tight leading-tight" style={{ color: theme.textColorBot }}>
                         How can I help you today?
                       </h2>
-                      <p className="text-xs md:text-sm text-slate-400 max-w-sm mx-auto">
+                      <p className="text-xs md:text-sm max-w-sm mx-auto" style={{ color: theme.textColorBot, opacity: 0.6 }}>
                         Ask about our products, check working hours, or check location details.
                       </p>
                     </div>
@@ -709,45 +709,49 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-left max-w-2xl mx-auto pt-6 px-4">
                       <button
                         onClick={() => submitMessage('Show me your goods & services catalog 📖')}
-                        className="p-4 border dark:border-slate-800 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900/60 shadow-sm transition hover:shadow-md duration-200 text-slate-700 dark:text-slate-300 group flex items-start space-x-3.5 text-left bg-white dark:bg-[#2b2c2f]/40"
+                        className="p-4 border rounded-2xl hover:scale-[1.01] shadow-sm transition-all duration-200 group flex items-start space-x-3.5 text-left"
+                        style={{ background: `${theme.bubbleBot}1c`, borderColor: `${theme.bubbleBot}33`, color: theme.textColorBot }}
                       >
                         <ShoppingBag className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
                         <div>
-                          <span className="block text-xs font-black group-hover:text-primary transition text-slate-900 dark:text-white">Explore Catalog</span>
-                          <span className="block text-[11px] text-slate-400 mt-0.5">Browse all goods, products, and services.</span>
+                          <span className="block text-xs font-black group-hover:text-primary transition" style={{ color: theme.textColorBot }}>Explore Catalog</span>
+                          <span className="block text-[11px] mt-0.5" style={{ color: theme.textColorBot, opacity: 0.6 }}>Browse all goods, products, and services.</span>
                         </div>
                       </button>
 
                       <button
                         onClick={() => submitMessage('What are your business opening hours? ⏰')}
-                        className="p-4 border dark:border-slate-800 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900/60 shadow-sm transition hover:shadow-md duration-200 text-slate-700 dark:text-slate-300 group flex items-start space-x-3.5 text-left bg-white dark:bg-[#2b2c2f]/40"
+                        className="p-4 border rounded-2xl hover:scale-[1.01] shadow-sm transition-all duration-200 group flex items-start space-x-3.5 text-left"
+                        style={{ background: `${theme.bubbleBot}1c`, borderColor: `${theme.bubbleBot}33`, color: theme.textColorBot }}
                       >
                         <Clock className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
                         <div>
-                          <span className="block text-xs font-black group-hover:text-primary transition text-slate-900 dark:text-white">Opening Hours</span>
-                          <span className="block text-[11px] text-slate-400 mt-0.5">Check schedule and working days.</span>
+                          <span className="block text-xs font-black group-hover:text-primary transition" style={{ color: theme.textColorBot }}>Opening Hours</span>
+                          <span className="block text-[11px] mt-0.5" style={{ color: theme.textColorBot, opacity: 0.6 }}>Check schedule and working days.</span>
                         </div>
                       </button>
 
                       <button
                         onClick={() => submitMessage('Where is your business located? 📍')}
-                        className="p-4 border dark:border-slate-800 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900/60 shadow-sm transition hover:shadow-md duration-200 text-slate-700 dark:text-slate-300 group flex items-start space-x-3.5 text-left bg-white dark:bg-[#2b2c2f]/40"
+                        className="p-4 border rounded-2xl hover:scale-[1.01] shadow-sm transition-all duration-200 group flex items-start space-x-3.5 text-left"
+                        style={{ background: `${theme.bubbleBot}1c`, borderColor: `${theme.bubbleBot}33`, color: theme.textColorBot }}
                       >
                         <MapPin className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
                         <div>
-                          <span className="block text-xs font-black group-hover:text-primary transition text-slate-900 dark:text-white">Find Location</span>
-                          <span className="block text-[11px] text-slate-400 mt-0.5">Locate store branch or physical address.</span>
+                          <span className="block text-xs font-black group-hover:text-primary transition" style={{ color: theme.textColorBot }}>Find Location</span>
+                          <span className="block text-[11px] mt-0.5" style={{ color: theme.textColorBot, opacity: 0.6 }}>Locate store branch or physical address.</span>
                         </div>
                       </button>
 
                       <button
                         onClick={() => submitMessage('Can you explain your return and refund guidelines? 🔄')}
-                        className="p-4 border dark:border-slate-800 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900/60 shadow-sm transition hover:shadow-md duration-200 text-slate-700 dark:text-slate-300 group flex items-start space-x-3.5 text-left bg-white dark:bg-[#2b2c2f]/40"
+                        className="p-4 border rounded-2xl hover:scale-[1.01] shadow-sm transition-all duration-200 group flex items-start space-x-3.5 text-left"
+                        style={{ background: `${theme.bubbleBot}1c`, borderColor: `${theme.bubbleBot}33`, color: theme.textColorBot }}
                       >
                         <FileText className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
                         <div>
-                          <span className="block text-xs font-black group-hover:text-primary transition text-slate-900 dark:text-white">Refund Guidelines</span>
-                          <span className="block text-[11px] text-slate-400 mt-0.5">Learn about return policies and warranties.</span>
+                          <span className="block text-xs font-black group-hover:text-primary transition" style={{ color: theme.textColorBot }}>Refund Guidelines</span>
+                          <span className="block text-[11px] mt-0.5" style={{ color: theme.textColorBot, opacity: 0.6 }}>Learn about return policies and warranties.</span>
                         </div>
                       </button>
                     </div>
@@ -771,9 +775,9 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                       <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
                         {ai.ai_name || `${ai.name} Assistant`}
                       </span>
-                      <div className="text-slate-850 dark:text-[#ececf1] text-[15px] leading-relaxed select-text font-medium">
-                        {renderMessageContent(theme.welcomeMessage)}
-                      </div>
+                    <div className="text-[15px] leading-relaxed select-text font-medium" style={{ color: theme.textColorBot }}>
+                      {renderMessageContent(theme.welcomeMessage)}
+                    </div>
                     </div>
                   </div>
                 )}
@@ -816,7 +820,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                           {m.content}
                         </div>
                       ) : (
-                        <div className="text-slate-850 dark:text-[#ececf1] text-[15px] leading-relaxed select-text font-medium">
+                        <div className="text-[15px] leading-relaxed select-text font-medium" style={{ color: theme.textColorBot }}>
                           {renderMessageContent(m.content)}
                         </div>
                       )}
@@ -868,7 +872,8 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
             <div className="p-4 md:p-6 shrink-0 bg-transparent">
               <form
                 onSubmit={handleSend}
-                className="max-w-3xl mx-auto border shadow-2xl rounded-2xl flex items-center space-x-2 bg-white dark:bg-[#2b2c2f] p-2 border-slate-200/60 dark:border-slate-800/80 focus-within:ring-1 focus-within:ring-primary/45 transition duration-200"
+                className="max-w-3xl mx-auto border shadow-2xl rounded-2xl flex items-center space-x-2 p-2 focus-within:ring-1 focus-within:ring-primary/45 transition duration-200"
+                style={{ background: theme.bgColor === '#ffffff' ? '#ffffff' : `${theme.bubbleBot}1c`, borderColor: `${theme.bubbleBot}33`, color: theme.textColorBot }}
               >
                 <input
                   type="text"
@@ -878,6 +883,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                   onChange={(e) => setInput(e.target.value)}
                   placeholder={`Message ${ai.ai_name || ai.name}...`}
                   className="flex-1 bg-transparent border-0 outline-none px-4 py-3.5 text-sm focus:ring-0"
+                  style={{ color: theme.textColorBot }}
                 />
                 <button
                   type="submit"
