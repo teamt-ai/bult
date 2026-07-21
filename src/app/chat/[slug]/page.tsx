@@ -17,13 +17,11 @@ import {
   LogOut, 
   Lock,
   Compass,
-  ArrowRight,
-  Sparkles,
   ShoppingBag,
   Clock,
-  HelpCircle,
   FileText,
-  User
+  User,
+  ExternalLink
 } from 'lucide-react'
 
 interface Message {
@@ -41,11 +39,11 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
   const [sessionId, setSessionId] = useState<string>('')
   const [errorText, setErrorText] = useState('')
 
-  // ChatGPT-like Sidebar states
+  // Sidebar controls
   const [sessionsList, setSessionsList] = useState<any[]>([])
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
-  // Visitor Authentication State
+  // Auth state
   const [visitorEmail, setVisitorEmail] = useState<string>('')
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin')
   const [emailInput, setEmailInput] = useState('')
@@ -78,7 +76,6 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
   }, [ai])
 
   useEffect(() => {
-    // Focus chat input when chat panel is shown
     if (visitorEmail && !loading) {
       setTimeout(() => chatInputRef.current?.focus(), 100)
     } else if (!visitorEmail && !loading) {
@@ -105,7 +102,6 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
 
     setAi(data)
 
-    // Check if user is already logged in
     const { data: { session } } = await supabase.auth.getSession()
     if (session?.user?.email) {
       const email = session.user.email
@@ -126,11 +122,9 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
 
     if (sessions && sessions.length > 0) {
       setSessionsList(sessions)
-      // Automatically load the latest session
       setSessionId(sessions[0].visitor_session_id)
       await loadSessionMessages(sessions[0].visitor_session_id)
     } else {
-      // Create first session
       const sessId = Math.random().toString(36).substring(2, 15)
       const { data: newSess } = await supabase
         .from('chat_sessions')
@@ -152,7 +146,6 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
   }
 
   const loadSessionMessages = async (visitorSessId: string) => {
-    // Find the row ID of chat session
     const { data: sessData } = await supabase
       .from('chat_sessions')
       .select('id')
@@ -212,10 +205,8 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
     setAuthLoading(true)
     setErrorText('')
 
-    const email = emailInput.trim().toLowerCase()
-
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: emailInput.trim().toLowerCase(),
       password: passwordInput,
     })
 
@@ -232,17 +223,15 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
     setAuthLoading(true)
     setErrorText('')
 
-    const email = emailInput.trim().toLowerCase()
-
     const { error } = await supabase.auth.signUp({
-      email,
+      email: emailInput.trim().toLowerCase(),
       password: passwordInput,
     })
 
     if (error) {
       setErrorText(error.message)
     } else {
-      alert('Verification email or account activation triggered! Check your inbox.')
+      alert('Account activation email triggered! Please check your inbox.')
     }
 
     setAuthLoading(false)
@@ -273,26 +262,21 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
     setErrorText('')
 
     const userText = text.trim()
-
-    // Save user message in local state
     const tempUserId = Math.random().toString(36).substring(7)
     const userMsg: Message = { id: tempUserId, role: 'user', content: userText }
     const updatedMessages = [...messages, userMsg]
     setMessages(updatedMessages)
     setIsTyping(true)
 
-    // Auto rename session based on first prompt
     if (messages.length === 0) {
-      let generatedTitle = userText.length > 24 ? userText.substring(0, 22) + '...' : userText
+      let generatedTitle = userText.length > 22 ? userText.substring(0, 20) + '...' : userText
       generatedTitle = generatedTitle.charAt(0).toUpperCase() + generatedTitle.slice(1)
       
-      // Update in DB
       await supabase
         .from('chat_sessions')
         .update({ title: generatedTitle })
         .eq('visitor_session_id', sessionId)
         
-      // Update locally
       setSessionsList(prev => prev.map(s => s.visitor_session_id === sessionId ? { ...s, title: generatedTitle } : s))
     }
 
@@ -312,7 +296,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
           message: userText,
           sessionId: sessionId,
           visitorEmail: visitorEmail,
-          history: recentHistory.slice(0, -1), // exclude the currently appended user msg
+          history: recentHistory.slice(0, -1),
         }),
       })
 
@@ -351,25 +335,14 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
 
-    // Monospace blocks: ```code```
-    html = html.replace(/```([\s\S]*?)```/g, '<pre class="bg-[#1e1e24] text-[#a9b2c3] p-3.5 rounded-2xl font-mono text-xs my-2.5 overflow-x-auto border border-white/5">$1</pre>')
-    // Inline monospace: `code`
-    html = html.replace(/`([^`]+)`/g, '<code class="bg-[#eef1f6] dark:bg-[#1e1e24] px-1.5 py-0.5 rounded font-mono text-xs font-semibold text-primary dark:text-primary-dark">$1</code>')
-
-    // Bold: **text** and *text*
+    html = html.replace(/```([\s\S]*?)```/g, '<pre class="bg-[#1e1e24] dark:bg-[#090a0c] text-[#a9b2c3] p-4 rounded-xl font-mono text-xs my-3 overflow-x-auto border border-white/5">$1</pre>')
+    html = html.replace(/`([^`]+)`/g, '<code class="bg-black/5 dark:bg-[#1e1e24] px-1.5 py-0.5 rounded font-mono text-xs font-semibold text-primary">$1</code>')
     html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     html = html.replace(/\*([^*]+)\*/g, '<strong>$1</strong>')
-
-    // Underline: __text__
     html = html.replace(/__([^_]+)__/g, '<u>$1</u>')
-    // Italic: _text_
     html = html.replace(/_([^_]+)_/g, '<em>$1</em>')
-
-    // Strikethrough: ~~text~~ and ~text~
     html = html.replace(/~~([^~]+)~~/g, '<del>$1</del>')
     html = html.replace(/~([^~]+)~/g, '<del>$1</del>')
-
-    // Line breaks
     html = html.replace(/\n/g, '<br />')
 
     return <span dangerouslySetInnerHTML={{ __html: html }} />
@@ -391,9 +364,9 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
       const alt = match[1]
       const src = match[2]
       parts.push(
-        <div key={`img-${index}`} className="my-3 max-w-sm rounded-3xl overflow-hidden border shadow-md bg-slate-100 dark:bg-slate-900 transition hover:scale-[1.01]">
+        <div key={`img-${index}`} className="my-3 max-w-sm rounded-2xl overflow-hidden border shadow-sm dark:border-slate-800">
           <img src={src} alt={alt} className="w-full h-48 object-cover" />
-          <div className="px-4 py-2 text-[10px] opacity-75 border-t italic font-sans truncate text-center font-bold tracking-wide uppercase">
+          <div className="px-3 py-2 text-[10px] opacity-75 border-t dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 italic text-center font-bold tracking-wide uppercase">
             {alt || 'Product Details'}
           </div>
         </div>
@@ -440,312 +413,281 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
   }
 
   return (
-    <div
-      className="min-h-screen flex flex-col md:flex-row p-0 md:p-4 transition-colors duration-300"
-      style={{ backgroundColor: theme.bgColor }}
-    >
-      <div
-        className="flex-1 w-full max-w-7xl mx-auto h-screen md:h-[760px] border shadow-2xl md:rounded-3xl flex overflow-hidden relative"
-        style={{ borderColor: `${theme.bubbleBot}33`, backgroundColor: theme.bgColor }}
-      >
-        {/* ChatGPT-style Sleek Left Sidebar */}
-        {visitorEmail && (
-          <>
-            {/* Sidebar mobile Backdrop */}
-            <div
-              className={`fixed inset-0 z-30 bg-black/60 md:hidden transition-opacity duration-300 ${
-                isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-              }`}
-              onClick={() => setIsSidebarOpen(false)}
-            />
+    <div className="min-h-screen w-screen h-screen overflow-hidden flex flex-row font-sans antialiased text-[#202124] dark:text-[#ececf1] bg-white dark:bg-[#131314]">
+      {/* 1. Sleek Carbon Sidebar (Exactly like ChatGPT / Grok) */}
+      {visitorEmail && (
+        <>
+          {/* Mobile overlay backdrop */}
+          <div
+            className={`fixed inset-0 z-30 bg-black/60 md:hidden transition-opacity duration-300 ${
+              isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+            }`}
+            onClick={() => setIsSidebarOpen(false)}
+          />
 
-            <div
-              className={`w-72 flex flex-col shrink-0 bg-[#0f1012] text-[#ececf1] z-40 md:z-10 md:static fixed top-0 bottom-0 left-0 transition-transform duration-300 md:translate-x-0 ${
-                isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-              }`}
-            >
-              {/* Sidebar Header */}
-              <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-                <div className="flex items-center space-x-2.5 min-w-0">
-                  <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border border-slate-800 bg-slate-900"
-                  >
-                    {ai.ai_logo_url ? (
-                      <img src={ai.ai_logo_url} alt="Logo" className="w-full h-full object-cover" />
-                    ) : (
-                      <Bot className="h-4.5 w-4.5 text-blue-500" />
-                    )}
-                  </div>
-                  <span className="font-extrabold text-sm truncate">
-                    {ai.ai_name || `${ai.name} Assistant`}
-                  </span>
-                </div>
-                
-                <button
-                  onClick={() => setIsSidebarOpen(false)}
-                  className="md:hidden p-1.5 hover:bg-slate-900 rounded-lg text-slate-400 hover:text-white transition"
-                >
-                  <X className="h-4.5 w-4.5" />
-                </button>
-              </div>
-
-              {/* Start New Chat Button */}
+          <div
+            className={`w-[260px] h-full flex flex-col shrink-0 bg-[#171717] text-[#ececf1] z-40 md:z-10 md:static fixed top-0 bottom-0 left-0 transition-transform duration-300 md:translate-x-0 ${
+              isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+            }`}
+          >
+            {/* New Chat Action */}
+            <div className="p-3.5">
               <button
                 onClick={startNewChat}
-                className="mx-4 my-4 p-3 flex items-center justify-center space-x-2 border border-slate-800 hover:border-slate-600 rounded-xl hover:bg-white/5 active:scale-95 transition font-bold text-xs text-[#ececf1]"
+                className="w-full py-2.5 px-3 flex items-center justify-between border border-white/10 hover:border-white/20 rounded-lg hover:bg-white/5 active:scale-[0.98] transition font-bold text-xs text-[#ececf1]"
               >
-                <Plus className="h-4 w-4 text-blue-500" />
-                <span>New Chat</span>
-              </button>
-
-              {/* History list */}
-              <div className="flex-1 overflow-y-auto px-3 space-y-1.5 py-1">
-                <span className="block text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-2 pl-2">
-                  Conversation History
+                <span className="flex items-center space-x-2">
+                  <Plus className="h-4 w-4 text-blue-500" />
+                  <span>New Chat</span>
                 </span>
-                {sessionsList.length === 0 ? (
-                  <div className="text-center py-8 text-xs text-slate-500 font-medium">
-                    No past sessions.
-                  </div>
-                ) : (
-                  sessionsList.map((s) => (
-                    <button
-                      key={s.id}
-                      onClick={() => handleSelectSession(s)}
-                      className={`w-full text-left px-3.5 py-3 rounded-xl text-xs font-bold transition truncate flex items-center space-x-2.5 ${
-                        sessionId === s.visitor_session_id
-                          ? 'bg-[#202123] text-white shadow-inner border border-white/5'
-                          : 'hover:bg-[#202123]/60 text-slate-400 hover:text-[#ececf1]'
-                      }`}
-                    >
-                      <MessageSquare className="h-4 w-4 shrink-0 opacity-70 text-blue-500" />
+                <span className="text-[9px] px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-slate-500 font-mono">⌘N</span>
+              </button>
+            </div>
+
+            {/* Conversation Log history */}
+            <div className="flex-1 overflow-y-auto px-2 space-y-0.5 py-1">
+              <span className="block text-[9px] font-bold text-slate-500 uppercase tracking-widest pl-3 mb-2">
+                Today
+              </span>
+              {sessionsList.length === 0 ? (
+                <div className="text-center py-8 text-xs text-slate-600 font-medium">
+                  No chat history
+                </div>
+              ) : (
+                sessionsList.map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => handleSelectSession(s)}
+                    className={`w-full text-left px-3 py-2.5 rounded-lg text-xs font-bold transition truncate flex items-center justify-between ${
+                      sessionId === s.visitor_session_id
+                        ? 'bg-[#212121] text-white'
+                        : 'hover:bg-[#212121]/50 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <span className="flex items-center space-x-2.5 min-w-0 pr-2">
+                      <MessageSquare className="h-4 w-4 shrink-0 text-blue-500 opacity-80" />
                       <span className="truncate">
                         {s.title || `Chat - ${new Date(s.created_at).toLocaleDateString()}`}
                       </span>
-                    </button>
-                  ))
-                )}
-              </div>
-
-              {/* Sidebar Footer Account */}
-              <div className="p-4 border-t border-slate-800 flex flex-col gap-2 bg-[#000]/20">
-                <div className="flex items-center justify-between min-w-0">
-                  <div className="min-w-0 flex-1 flex items-center space-x-2.5">
-                    <div className="w-7 h-7 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs shrink-0 border border-slate-700">
-                      <User className="h-3.5 w-3.5 text-blue-400" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <span className="block text-[8px] font-bold text-slate-500 uppercase tracking-wide">
-                        Active Account
-                      </span>
-                      <span className="block text-[11px] font-bold truncate text-slate-300">
-                        {visitorEmail}
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={handleSignOut}
-                    className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-white/5 rounded-lg transition shrink-0"
-                    title="Sign Out"
-                  >
-                    <LogOut className="h-4.5 w-4.5" />
+                    </span>
                   </button>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* Chat Main Area Container */}
-        <div className="flex-1 flex flex-col overflow-hidden bg-slate-50/30 dark:bg-slate-950/20">
-          {/* Header */}
-          <div
-            className="px-6 py-4 flex items-center justify-between border-b shrink-0 bg-white dark:bg-slate-900 shadow-sm"
-            style={{ borderBottomColor: `${theme.bubbleBot}22` }}
-          >
-            <div className="flex items-center space-x-3 min-w-0">
-              {visitorEmail && (
-                <button
-                  onClick={() => setIsSidebarOpen(true)}
-                  className="md:hidden p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 mr-1"
-                >
-                  <Menu className="h-5 w-5" />
-                </button>
+                ))
               )}
-              
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-white overflow-hidden shrink-0 border shadow-sm"
-                style={{ backgroundColor: theme.primaryColor, borderColor: `${theme.bubbleBot}33` }}
-              >
-                {ai.ai_logo_url ? (
-                  <img src={ai.ai_logo_url} alt="AI Logo" className="w-full h-full object-cover" />
-                ) : ai.logo_url ? (
-                  <img src={ai.logo_url} alt="Logo" className="w-full h-full object-cover" />
-                ) : (
-                  <Bot className="h-5 w-5" />
-                )}
-              </div>
-              <div className="min-w-0">
-                <h1 className="font-extrabold text-sm md:text-base leading-tight truncate" style={{ color: theme.textColorBot }}>
-                  {ai.ai_name || `${ai.name} Assistant`}
-                </h1>
-                <span className="text-[10px] opacity-60 flex items-center gap-1.5 mt-0.5 truncate" style={{ color: theme.textColorBot }}>
-                  <span className="font-semibold text-primary">Assistant for {ai.name}</span>
-                  {ai.location && (
-                    <>
-                      <span>•</span>
-                      <MapPin className="h-3 w-3 shrink-0 text-slate-400" />
-                      <span className="truncate">{ai.location}</span>
-                    </>
-                  )}
-                </span>
-              </div>
             </div>
 
-            <div className="flex items-center space-x-2">
-              <span className="text-[10px] px-2.5 py-1 rounded bg-slate-500/10 border uppercase tracking-wider opacity-60 font-extrabold" style={{ color: theme.textColorBot }}>
-                Active Agent
+            {/* Account settings panel */}
+            <div className="p-3 border-t border-white/5 bg-black/10 flex flex-col gap-2">
+              <div className="flex items-center justify-between min-w-0 px-2 py-1">
+                <div className="min-w-0 flex-1 flex items-center space-x-2.5">
+                  <div className="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center font-bold text-xs shrink-0 border border-slate-700">
+                    <User className="h-3.5 w-3.5 text-blue-400" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="block text-[11px] font-bold truncate text-slate-300">
+                      {visitorEmail}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-white/5 rounded-lg transition shrink-0"
+                  title="Sign Out"
+                >
+                  <LogOut className="h-4.5 w-4.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* 2. Main Chat canvas area */}
+      <div className="flex-1 h-full flex flex-col overflow-hidden bg-white dark:bg-[#212121]">
+        {/* Top Navbar */}
+        <div className="h-14 border-b border-slate-200/60 dark:border-slate-800/80 bg-white dark:bg-[#212121] flex items-center justify-between px-6 shrink-0 z-20">
+          <div className="flex items-center space-x-3 min-w-0">
+            {visitorEmail && (
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="md:hidden p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 mr-1"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+            )}
+            
+            {/* AI Custom Logo */}
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border dark:border-slate-800 shadow-sm"
+              style={{ backgroundColor: theme.primaryColor }}
+            >
+              {ai.ai_logo_url ? (
+                <img src={ai.ai_logo_url} alt="AI Logo" className="w-full h-full object-cover" />
+              ) : ai.logo_url ? (
+                <img src={ai.logo_url} alt="Logo" className="w-full h-full object-cover" />
+              ) : (
+                <Bot className="h-4.5 w-4.5" />
+              )}
+            </div>
+
+            <div className="min-w-0">
+              <h1 className="font-extrabold text-sm md:text-base leading-tight truncate">
+                {ai.ai_name || `${ai.name} Assistant`}
+              </h1>
+              <span className="text-[10px] opacity-60 flex items-center gap-1.5 mt-0.5 truncate text-slate-500">
+                <span className="font-semibold text-primary">Assistant for {ai.name}</span>
+                {ai.location && (
+                  <>
+                    <span>•</span>
+                    <MapPin className="h-2.5 w-2.5 shrink-0" />
+                    <span className="truncate">{ai.location}</span>
+                  </>
+                )}
               </span>
             </div>
           </div>
 
-          {/* 1. SECURE SIGN IN / SIGN UP MODAL */}
-          {!visitorEmail ? (
-            <div className="flex-1 flex items-center justify-center p-6 overflow-y-auto">
-              <div className="max-w-md w-full bg-white dark:bg-slate-950 border rounded-3xl p-6 md:p-8 shadow-2xl space-y-6">
-                <div className="text-center space-y-4">
-                  <div 
-                    className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-white overflow-hidden shadow-md border"
-                    style={{ backgroundColor: theme.primaryColor, borderColor: `${theme.bubbleBot}44` }}
-                  >
-                    {ai.ai_logo_url ? (
-                      <img src={ai.ai_logo_url} alt="AI Logo" className="w-full h-full object-cover" />
-                    ) : ai.logo_url ? (
-                      <img src={ai.logo_url} alt="Logo" className="w-full h-full object-cover" />
-                    ) : (
-                      <Bot className="h-8 w-8" />
-                    )}
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-black tracking-tight" style={{ color: theme.textColorBot }}>
-                      Chat with {ai.ai_name || `${ai.name} Assistant`}
-                    </h2>
-                    <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
-                      Access official customer service, track your conversation history, and verify orders.
-                    </p>
-                  </div>
-                </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-[9px] px-2.5 py-1 rounded bg-slate-500/10 border dark:border-slate-800 uppercase tracking-widest font-extrabold text-slate-500">
+              Active Agent
+            </span>
+          </div>
+        </div>
 
-                {/* Tab Switcher */}
-                <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-2xl">
-                  <button
-                    onClick={() => setAuthMode('signin')}
-                    className={`flex-1 py-2 text-xs font-bold rounded-xl transition ${
-                      authMode === 'signin' 
-                        ? 'bg-white dark:bg-slate-950 shadow-sm' 
-                        : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-                    }`}
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    onClick={() => setAuthMode('signup')}
-                    className={`flex-1 py-2 text-xs font-bold rounded-xl transition ${
-                      authMode === 'signup' 
-                        ? 'bg-white dark:bg-slate-950 shadow-sm' 
-                        : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-                    }`}
-                  >
-                    Sign Up
-                  </button>
-                </div>
-
-                {errorText && (
-                  <div className="p-3 bg-red-500/10 border border-red-500/25 text-red-500 rounded-2xl text-xs flex items-center space-x-2 animate-in fade-in">
-                    <AlertCircle className="h-4 w-4 shrink-0" />
-                    <span>{errorText}</span>
-                  </div>
-                )}
-
-                {/* Authentication Form */}
-                <form onSubmit={authMode === 'signin' ? handleSignIn : handleSignUp} className="space-y-4">
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1.5">Email Address</label>
-                    <div className="flex items-center bg-slate-50 dark:bg-slate-900 border rounded-2xl px-3.5 focus-within:ring-1 focus-within:ring-primary transition">
-                      <Mail className="h-4.5 w-4.5 text-slate-400 shrink-0 mr-2" />
-                      <input
-                        type="email"
-                        ref={emailInputRef}
-                        required
-                        placeholder="you@domain.com"
-                        value={emailInput}
-                        onChange={(e) => setEmailInput(e.target.value)}
-                        className="flex-1 bg-transparent border-0 outline-none py-3.5 text-sm focus:ring-0"
-                        style={{ color: theme.textColorBot }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1.5">Password</label>
-                    <div className="flex items-center bg-slate-50 dark:bg-slate-900 border rounded-2xl px-3.5 focus-within:ring-1 focus-within:ring-primary transition">
-                      <Lock className="h-4.5 w-4.5 text-slate-400 shrink-0 mr-2" />
-                      <input
-                        type="password"
-                        required
-                        placeholder="••••••••"
-                        value={passwordInput}
-                        onChange={(e) => setPasswordInput(e.target.value)}
-                        className="flex-1 bg-transparent border-0 outline-none py-3.5 text-sm focus:ring-0"
-                        style={{ color: theme.textColorBot }}
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={authLoading}
-                    className="w-full py-3.5 rounded-2xl font-bold flex items-center justify-center space-x-2 text-white transition hover:opacity-90 active:scale-95 text-sm shadow-md"
-                    style={{ backgroundColor: theme.primaryColor }}
-                  >
-                    {authLoading ? (
-                      <RefreshCw className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <LogIn className="h-4 w-4" />
-                    )}
-                    <span>{authLoading ? 'Loading...' : authMode === 'signin' ? 'Sign In' : 'Create Account'}</span>
-                  </button>
-                </form>
-
-                <div className="relative flex py-1 items-center">
-                  <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
-                  <span className="flex-shrink mx-4 text-[9px] text-slate-400 font-bold uppercase tracking-wider">or</span>
-                  <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
-                </div>
-
-                {/* Google Login */}
-                <button
-                  type="button"
-                  onClick={handleGoogleSignIn}
-                  className="w-full py-3.5 border rounded-2xl font-bold hover:bg-slate-50 dark:hover:bg-slate-900 flex items-center justify-center space-x-2.5 transition text-sm text-slate-700 dark:text-slate-200 shadow-sm"
+        {/* 3. Authentication Forms */}
+        {!visitorEmail ? (
+          <div className="flex-1 flex items-center justify-center p-6 overflow-y-auto bg-slate-50 dark:bg-[#1e1e1f]">
+            <div className="max-w-md w-full bg-white dark:bg-[#2b2c2f] border dark:border-slate-800/80 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6">
+              <div className="text-center space-y-4">
+                <div 
+                  className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-white overflow-hidden shadow-md border dark:border-slate-800"
+                  style={{ backgroundColor: theme.primaryColor }}
                 >
-                  <Compass className="h-4.5 w-4.5 text-primary" />
-                  <span>Sign In with Google</span>
+                  {ai.ai_logo_url ? (
+                    <img src={ai.ai_logo_url} alt="AI Logo" className="w-full h-full object-cover" />
+                  ) : ai.logo_url ? (
+                    <img src={ai.logo_url} alt="Logo" className="w-full h-full object-cover" />
+                  ) : (
+                    <Bot className="h-8 w-8" />
+                  )}
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black tracking-tight">
+                    Chat with {ai.ai_name || `${ai.name} Assistant`}
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+                    Access official customer service, track your conversation history, and verify orders.
+                  </p>
+                </div>
+              </div>
+
+              {/* Tabs */}
+              <div className="flex bg-slate-100 dark:bg-[#1e1e1f] p-1 rounded-2xl">
+                <button
+                  onClick={() => setAuthMode('signin')}
+                  className={`flex-1 py-2 text-xs font-bold rounded-xl transition ${
+                    authMode === 'signin' 
+                      ? 'bg-white dark:bg-[#2b2c2f] shadow-sm' 
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                  }`}
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => setAuthMode('signup')}
+                  className={`flex-1 py-2 text-xs font-bold rounded-xl transition ${
+                    authMode === 'signup' 
+                      ? 'bg-white dark:bg-[#2b2c2f] shadow-sm' 
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                  }`}
+                >
+                  Sign Up
                 </button>
               </div>
+
+              {errorText && (
+                <div className="p-3 bg-red-500/10 border border-red-500/25 text-red-500 rounded-2xl text-xs flex items-center space-x-2 animate-in fade-in">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>{errorText}</span>
+                </div>
+              )}
+
+              {/* Form fields */}
+              <form onSubmit={authMode === 'signin' ? handleSignIn : handleSignUp} className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Email Address</label>
+                  <div className="flex items-center bg-slate-50 dark:bg-[#1e1e1f] border dark:border-slate-800 rounded-2xl px-3.5 focus-within:ring-1 focus-within:ring-primary transition">
+                    <Mail className="h-4.5 w-4.5 text-slate-400 shrink-0 mr-2" />
+                    <input
+                      type="email"
+                      ref={emailInputRef}
+                      required
+                      placeholder="name@email.com"
+                      value={emailInput}
+                      onChange={(e) => setEmailInput(e.target.value)}
+                      className="flex-1 bg-transparent border-0 outline-none py-3.5 text-sm focus:ring-0"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Password</label>
+                  <div className="flex items-center bg-slate-50 dark:bg-[#1e1e1f] border dark:border-slate-800 rounded-2xl px-3.5 focus-within:ring-1 focus-within:ring-primary transition">
+                    <Lock className="h-4.5 w-4.5 text-slate-400 shrink-0 mr-2" />
+                    <input
+                      type="password"
+                      required
+                      placeholder="••••••••"
+                      value={passwordInput}
+                      onChange={(e) => setPasswordInput(e.target.value)}
+                      className="flex-1 bg-transparent border-0 outline-none py-3.5 text-sm focus:ring-0"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={authLoading}
+                  className="w-full py-3.5 rounded-2xl font-bold flex items-center justify-center space-x-2 text-white transition hover:opacity-90 active:scale-95 text-sm shadow-md"
+                  style={{ backgroundColor: theme.primaryColor }}
+                >
+                  {authLoading ? (
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <LogIn className="h-4 w-4" />
+                  )}
+                  <span>{authLoading ? 'Loading...' : authMode === 'signin' ? 'Sign In' : 'Create Account'}</span>
+                </button>
+              </form>
+
+              <div className="relative flex py-1 items-center">
+                <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+                <span className="flex-shrink mx-4 text-[9px] text-slate-400 font-bold uppercase tracking-wider">or</span>
+                <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+              </div>
+
+              {/* Google OAuth Login */}
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                className="w-full py-3.5 border dark:border-slate-800 rounded-2xl font-bold hover:bg-slate-50 dark:hover:bg-slate-[#1e1e1f] flex items-center justify-center space-x-2.5 transition text-sm text-slate-700 dark:text-slate-200 shadow-sm"
+              >
+                <Compass className="h-4.5 w-4.5 text-primary" />
+                <span>Sign In with Google</span>
+              </button>
             </div>
-          ) : (
-            /* 2. Chat Layout with full width cleaner bubbles similar to ChatGPT / Gemini */
-            <>
-              {/* Message Panel */}
-              <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-6">
+          </div>
+        ) : (
+          /* 4. ChatGPT / Gemini Full Screen Canvas Feed */
+          <>
+            <div className="flex-1 overflow-y-auto px-4 md:px-0">
+              <div className="max-w-3xl mx-auto py-10 space-y-8">
                 
-                {/* 2.1 ChatGPT Welcome Screen (If no messages sent yet) */}
+                {/* 4.1 Empty State (Grok / ChatGPT style startup) */}
                 {messages.length === 0 && (
-                  <div className="max-w-2xl mx-auto py-10 md:py-16 text-center space-y-8 animate-in fade-in duration-300">
+                  <div className="py-14 md:py-20 text-center space-y-8 animate-in fade-in duration-300">
                     <div 
-                      className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-white overflow-hidden shadow border"
-                      style={{ backgroundColor: theme.primaryColor, borderColor: `${theme.bubbleBot}44` }}
+                      className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-white overflow-hidden shadow border dark:border-slate-850"
+                      style={{ backgroundColor: theme.primaryColor }}
                     >
                       {ai.ai_logo_url ? (
                         <img src={ai.ai_logo_url} alt="Logo" className="w-full h-full object-cover" />
@@ -755,56 +697,56 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                     </div>
 
                     <div className="space-y-2">
-                      <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                      <h2 className="text-2xl md:text-4.5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
                         How can I help you today?
                       </h2>
-                      <p className="text-sm text-slate-400 max-w-sm mx-auto">
-                        Ask details about catalog items, services, terms, location, or opening hours.
+                      <p className="text-xs md:text-sm text-slate-400 max-w-sm mx-auto">
+                        Ask about our products, check working hours, or check location details.
                       </p>
                     </div>
 
-                    {/* Pre-built clickable Prompt Cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-left max-w-xl mx-auto pt-4">
+                    {/* Dashboard cards prompt shortcuts */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-left max-w-2xl mx-auto pt-6 px-4">
                       <button
                         onClick={() => submitMessage('Show me your goods & services catalog 📖')}
-                        className="p-4 border rounded-2xl hover:bg-white dark:hover:bg-slate-900/60 shadow-sm transition hover:shadow duration-200 text-slate-700 dark:text-slate-300 group flex items-start space-x-3 hover:border-blue-500/40 text-left bg-white/20"
+                        className="p-4 border dark:border-slate-800 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900/60 shadow-sm transition hover:shadow-md duration-200 text-slate-700 dark:text-slate-300 group flex items-start space-x-3.5 text-left bg-white dark:bg-[#2b2c2f]/40"
                       >
                         <ShoppingBag className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
                         <div>
-                          <span className="block text-xs font-extrabold group-hover:text-primary transition">Explore Catalog</span>
+                          <span className="block text-xs font-black group-hover:text-primary transition text-slate-900 dark:text-white">Explore Catalog</span>
                           <span className="block text-[11px] text-slate-400 mt-0.5">Browse all goods, products, and services.</span>
                         </div>
                       </button>
 
                       <button
                         onClick={() => submitMessage('What are your business opening hours? ⏰')}
-                        className="p-4 border rounded-2xl hover:bg-white dark:hover:bg-slate-900/60 shadow-sm transition hover:shadow duration-200 text-slate-700 dark:text-slate-300 group flex items-start space-x-3 hover:border-blue-500/40 text-left bg-white/20"
+                        className="p-4 border dark:border-slate-800 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900/60 shadow-sm transition hover:shadow-md duration-200 text-slate-700 dark:text-slate-300 group flex items-start space-x-3.5 text-left bg-white dark:bg-[#2b2c2f]/40"
                       >
                         <Clock className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
                         <div>
-                          <span className="block text-xs font-extrabold group-hover:text-primary transition">Opening Hours</span>
+                          <span className="block text-xs font-black group-hover:text-primary transition text-slate-900 dark:text-white">Opening Hours</span>
                           <span className="block text-[11px] text-slate-400 mt-0.5">Check schedule and working days.</span>
                         </div>
                       </button>
 
                       <button
                         onClick={() => submitMessage('Where is your business located? 📍')}
-                        className="p-4 border rounded-2xl hover:bg-white dark:hover:bg-slate-900/60 shadow-sm transition hover:shadow duration-200 text-slate-700 dark:text-slate-300 group flex items-start space-x-3 hover:border-blue-500/40 text-left bg-white/20"
+                        className="p-4 border dark:border-slate-800 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900/60 shadow-sm transition hover:shadow-md duration-200 text-slate-700 dark:text-slate-300 group flex items-start space-x-3.5 text-left bg-white dark:bg-[#2b2c2f]/40"
                       >
                         <MapPin className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
                         <div>
-                          <span className="block text-xs font-extrabold group-hover:text-primary transition">Find Location</span>
+                          <span className="block text-xs font-black group-hover:text-primary transition text-slate-900 dark:text-white">Find Location</span>
                           <span className="block text-[11px] text-slate-400 mt-0.5">Locate store branch or physical address.</span>
                         </div>
                       </button>
 
                       <button
                         onClick={() => submitMessage('Can you explain your return and refund guidelines? 🔄')}
-                        className="p-4 border rounded-2xl hover:bg-white dark:hover:bg-slate-900/60 shadow-sm transition hover:shadow duration-200 text-slate-700 dark:text-slate-300 group flex items-start space-x-3 hover:border-blue-500/40 text-left bg-white/20"
+                        className="p-4 border dark:border-slate-800 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900/60 shadow-sm transition hover:shadow-md duration-200 text-slate-700 dark:text-slate-300 group flex items-start space-x-3.5 text-left bg-white dark:bg-[#2b2c2f]/40"
                       >
                         <FileText className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
                         <div>
-                          <span className="block text-xs font-extrabold group-hover:text-primary transition">Refund Guidelines</span>
+                          <span className="block text-xs font-black group-hover:text-primary transition text-slate-900 dark:text-white">Refund Guidelines</span>
                           <span className="block text-[11px] text-slate-400 mt-0.5">Learn about return policies and warranties.</span>
                         </div>
                       </button>
@@ -812,12 +754,12 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                   </div>
                 )}
 
-                {/* 2.2 Welcome Message (Always shows if messages exist, formatted correctly) */}
+                {/* 4.2 Welcome greetings block (formatted flat list style) */}
                 {messages.length > 0 && (
-                  <div className="flex justify-start items-start gap-3.5 max-w-3xl mx-auto">
+                  <div className="flex justify-start items-start gap-4 animate-in fade-in">
                     <div 
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border"
-                      style={{ backgroundColor: theme.primaryColor, borderColor: `${theme.bubbleBot}33` }}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border dark:border-slate-800 shadow-sm"
+                      style={{ backgroundColor: theme.primaryColor }}
                     >
                       {ai.ai_logo_url ? (
                         <img src={ai.ai_logo_url} alt="Logo" className="w-full h-full object-cover" />
@@ -826,29 +768,29 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
                         {ai.ai_name || `${ai.name} Assistant`}
                       </span>
-                      <div className="text-slate-800 dark:text-slate-200 text-sm md:text-[15px] leading-relaxed select-text font-medium">
+                      <div className="text-slate-850 dark:text-[#ececf1] text-[15px] leading-relaxed select-text font-medium">
                         {renderMessageContent(theme.welcomeMessage)}
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* 2.3 Conversational bubble listings */}
+                {/* 4.3 Message stream listings (Grok style side-by-side feed layout) */}
                 {messages.map((m) => (
                   <div 
                     key={m.id} 
-                    className={`flex items-start gap-3.5 max-w-3xl mx-auto ${
+                    className={`flex items-start gap-4 ${
                       m.role === 'user' ? 'justify-end' : 'justify-start'
-                    }`}
+                    } animate-in fade-in`}
                   >
                     {/* Bot Avatar Left */}
                     {m.role === 'model' && (
                       <div 
-                        className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border"
-                        style={{ backgroundColor: theme.primaryColor, borderColor: `${theme.bubbleBot}33` }}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border dark:border-slate-800 shadow-sm"
+                        style={{ backgroundColor: theme.primaryColor }}
                       >
                         {ai.ai_logo_url ? (
                           <img src={ai.ai_logo_url} alt="Logo" className="w-full h-full object-cover" />
@@ -859,11 +801,10 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                     )}
 
                     <div className={`min-w-0 ${m.role === 'user' ? 'flex flex-col items-end' : 'flex-1'}`}>
-                      <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
                         {m.role === 'user' ? 'You' : (ai.ai_name || `${ai.name} Assistant`)}
                       </span>
                       
-                      {/* User gets a capsule bubble; Model gets a clean, modern flat text block */}
                       {m.role === 'user' ? (
                         <div 
                           className="rounded-2xl px-4 py-2.5 text-sm md:text-[15px] leading-relaxed shadow-sm font-semibold select-text rounded-tr-none text-right"
@@ -875,7 +816,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                           {m.content}
                         </div>
                       ) : (
-                        <div className="text-slate-800 dark:text-slate-200 text-sm md:text-[15px] leading-relaxed select-text font-medium">
+                        <div className="text-slate-850 dark:text-[#ececf1] text-[15px] leading-relaxed select-text font-medium">
                           {renderMessageContent(m.content)}
                         </div>
                       )}
@@ -885,10 +826,10 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
 
                 {/* Typing Indicator */}
                 {isTyping && (
-                  <div className="flex items-start gap-3.5 max-w-3xl mx-auto">
+                  <div className="flex items-start gap-4">
                     <div 
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border"
-                      style={{ backgroundColor: theme.primaryColor, borderColor: `${theme.bubbleBot}33` }}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border dark:border-slate-800 shadow-sm"
+                      style={{ backgroundColor: theme.primaryColor }}
                     >
                       {ai.ai_logo_url ? (
                         <img src={ai.ai_logo_url} alt="Logo" className="w-full h-full object-cover" />
@@ -897,21 +838,21 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                       )}
                     </div>
                     <div className="flex-1">
-                      <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
                         {ai.ai_name || `${ai.name} Assistant`}
                       </span>
                       <div
-                        className="rounded-full px-4 py-2 bg-slate-100 dark:bg-slate-900 border text-slate-500 w-fit text-xs flex items-center space-x-1"
+                        className="rounded-full px-4.5 py-2.5 bg-slate-100 dark:bg-slate-900 border dark:border-slate-800 text-slate-500 w-fit text-xs flex items-center space-x-1.5"
                       >
-                        <span className="animate-bounce font-bold">.</span>
-                        <span className="animate-bounce delay-70 font-bold">.</span>
-                        <span className="animate-bounce delay-150 font-bold">.</span>
+                        <span className="animate-bounce font-extrabold">.</span>
+                        <span className="animate-bounce delay-75 font-extrabold">.</span>
+                        <span className="animate-bounce delay-150 font-extrabold">.</span>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* Error Message */}
+                {/* Alert notification block */}
                 {errorText && (
                   <div className="max-w-3xl mx-auto p-4 bg-red-500/10 border border-red-500/25 text-red-500 rounded-2xl text-xs flex items-center space-x-2 animate-in fade-in">
                     <AlertCircle className="h-4.5 w-4.5 shrink-0" />
@@ -921,41 +862,38 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
 
                 <div ref={chatEndRef} />
               </div>
+            </div>
 
-              {/* Clean Floating Input Area (ChatGPT/Gemini style) */}
-              <div className="p-4 md:p-6 shrink-0 bg-transparent">
-                <form
-                  onSubmit={handleSend}
-                  className="max-w-3xl mx-auto border shadow-lg rounded-2xl flex items-center space-x-2 bg-white dark:bg-slate-900 p-2 border-slate-200 dark:border-slate-800 focus-within:ring-1 focus-within:ring-primary/45 transition duration-200"
+            {/* Bottom floating capsule prompt box */}
+            <div className="p-4 md:p-6 shrink-0 bg-transparent">
+              <form
+                onSubmit={handleSend}
+                className="max-w-3xl mx-auto border shadow-2xl rounded-2xl flex items-center space-x-2 bg-white dark:bg-[#2b2c2f] p-2 border-slate-200/60 dark:border-slate-800/80 focus-within:ring-1 focus-within:ring-primary/45 transition duration-200"
+              >
+                <input
+                  type="text"
+                  ref={chatInputRef}
+                  required
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={`Message ${ai.ai_name || ai.name}...`}
+                  className="flex-1 bg-transparent border-0 outline-none px-4 py-3.5 text-sm focus:ring-0"
+                />
+                <button
+                  type="submit"
+                  disabled={!input.trim() || isTyping}
+                  className="p-3.5 rounded-xl flex items-center justify-center text-white transition hover:opacity-90 active:scale-95 shadow shrink-0"
+                  style={{ backgroundColor: theme.primaryColor }}
                 >
-                  <input
-                    type="text"
-                    ref={chatInputRef}
-                    required
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder={`Message ${ai.ai_name || ai.name}...`}
-                    className="flex-1 bg-transparent border-0 outline-none px-3.5 py-3 text-sm focus:ring-0"
-                    style={{ color: theme.textColorBot }}
-                  />
-                  <button
-                    type="submit"
-                    disabled={!input.trim() || isTyping}
-                    className="p-3 rounded-xl flex items-center justify-center text-white transition hover:opacity-90 active:scale-95 shadow shrink-0"
-                    style={{ backgroundColor: theme.primaryColor }}
-                  >
-                    <Send className="h-4.5 w-4.5" />
-                  </button>
-                </form>
+                  <Send className="h-4 w-4" />
+                </button>
+              </form>
+              <div className="text-[10px] text-center mt-3 text-slate-400 font-medium">
+                {ai.ai_name || ai.name} can make mistakes. Verify important business details.
               </div>
-            </>
-          )}
-
-          {/* Footer branding */}
-          <div className="text-[9px] text-center pb-2.5 opacity-40 font-mono uppercase tracking-wider shrink-0" style={{ color: theme.textColorBot }}>
-            Powered by Bult.AI
-          </div>
-        </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
