@@ -195,11 +195,11 @@ export async function POST(req: NextRequest) {
       .select('id')
       .single()
 
-    // 6. Call Gemini 3.5 Flash via Google SDK with Salesperson System Instructions
+    // 6. Call Gemini 1.5 Flash via Google SDK with Salesperson System Instructions
     const botName = ai.ai_name || `${ai.name} Assistant`
     const aiClient = new GoogleGenerativeAI(apiKey)
     const model = aiClient.getGenerativeModel({
-      model: 'gemini-3.5-flash',
+      model: 'gemini-1.5-flash',
       systemInstruction: `You are ${botName}, the official AI Assistant and the world's best sales marketer working for ${ai.name}.
 Your job is to answer customer questions using ONLY the provided business sources and catalog, maximize sales conversion, and cross-sell related products.
 

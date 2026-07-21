@@ -17,7 +17,13 @@ import {
   LogOut, 
   Lock,
   Compass,
-  ArrowRight
+  ArrowRight,
+  Sparkles,
+  ShoppingBag,
+  Clock,
+  HelpCircle,
+  FileText,
+  User
 } from 'lucide-react'
 
 interface Message {
@@ -113,7 +119,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
   const loadUserSessionsAndHistory = async (email: string, aiId: string) => {
     const { data: sessions } = await supabase
       .from('chat_sessions')
-      .select('*')
+      .select('id, visitor_session_id, visitor_email, created_at, title')
       .eq('ai_id', aiId)
       .eq('visitor_email', email)
       .order('created_at', { ascending: false })
@@ -131,7 +137,8 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
         .insert({
           ai_id: aiId,
           visitor_session_id: sessId,
-          visitor_email: email
+          visitor_email: email,
+          title: 'New Chat'
         })
         .select()
         .single()
@@ -179,7 +186,8 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
       .insert({
         ai_id: ai.id,
         visitor_session_id: sessId,
-        visitor_email: visitorEmail
+        visitor_email: visitorEmail,
+        title: 'New Chat'
       })
       .select()
       .single()
@@ -260,23 +268,36 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
     setMessages([])
   }
 
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim() || isTyping) return
+  const submitMessage = async (text: string) => {
+    if (!text.trim() || isTyping) return
     setErrorText('')
 
-    const userText = input.trim()
-    setInput('')
+    const userText = text.trim()
 
-    // Append user message local state
+    // Save user message in local state
     const tempUserId = Math.random().toString(36).substring(7)
     const userMsg: Message = { id: tempUserId, role: 'user', content: userText }
-    setMessages((prev) => [...prev, userMsg])
+    const updatedMessages = [...messages, userMsg]
+    setMessages(updatedMessages)
     setIsTyping(true)
 
+    // Auto rename session based on first prompt
+    if (messages.length === 0) {
+      let generatedTitle = userText.length > 24 ? userText.substring(0, 22) + '...' : userText
+      generatedTitle = generatedTitle.charAt(0).toUpperCase() + generatedTitle.slice(1)
+      
+      // Update in DB
+      await supabase
+        .from('chat_sessions')
+        .update({ title: generatedTitle })
+        .eq('visitor_session_id', sessionId)
+        
+      // Update locally
+      setSessionsList(prev => prev.map(s => s.visitor_session_id === sessionId ? { ...s, title: generatedTitle } : s))
+    }
+
     try {
-      // Keep only last 8 messages for active context history
-      const recentHistory = messages.slice(-8).map((m) => ({
+      const recentHistory = updatedMessages.slice(-8).map((m) => ({
         role: m.role,
         content: m.content,
       }))
@@ -291,7 +312,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
           message: userText,
           sessionId: sessionId,
           visitorEmail: visitorEmail,
-          history: recentHistory,
+          history: recentHistory.slice(0, -1), // exclude the currently appended user msg
         }),
       })
 
@@ -316,33 +337,39 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
     }
   }
 
+  const handleSend = (e: React.FormEvent) => {
+    e.preventDefault()
+    const text = input
+    setInput('')
+    submitMessage(text)
+  }
+
   // --- TEXT MARKDOWN / WHATSAPP STYLE PARSER ---
   const parseInlineStyles = (txt: string) => {
-    // 1. Escape HTML entities
     let html = txt
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
 
-    // 2. Monospace blocks: ```code```
-    html = html.replace(/```([\s\S]*?)```/g, '<pre class="bg-black/10 dark:bg-black/30 p-2 rounded-lg font-mono text-xs my-1.5 overflow-x-auto">$1</pre>')
-    // 3. Inline monospace: `code`
-    html = html.replace(/`([^`]+)`/g, '<code class="bg-black/10 dark:bg-black/30 px-1.5 py-0.5 rounded font-mono text-xs">$1</code>')
+    // Monospace blocks: ```code```
+    html = html.replace(/```([\s\S]*?)```/g, '<pre class="bg-[#1e1e24] text-[#a9b2c3] p-3.5 rounded-2xl font-mono text-xs my-2.5 overflow-x-auto border border-white/5">$1</pre>')
+    // Inline monospace: `code`
+    html = html.replace(/`([^`]+)`/g, '<code class="bg-[#eef1f6] dark:bg-[#1e1e24] px-1.5 py-0.5 rounded font-mono text-xs font-semibold text-primary dark:text-primary-dark">$1</code>')
 
-    // 4. Bold: **text** and *text*
+    // Bold: **text** and *text*
     html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     html = html.replace(/\*([^*]+)\*/g, '<strong>$1</strong>')
 
-    // 5. Underline: __text__
+    // Underline: __text__
     html = html.replace(/__([^_]+)__/g, '<u>$1</u>')
-    // 6. Italic: _text_
+    // Italic: _text_
     html = html.replace(/_([^_]+)_/g, '<em>$1</em>')
 
-    // 7. Strikethrough: ~~text~~ and ~text~
+    // Strikethrough: ~~text~~ and ~text~
     html = html.replace(/~~([^~]+)~~/g, '<del>$1</del>')
     html = html.replace(/~([^~]+)~/g, '<del>$1</del>')
 
-    // 8. Replace line breaks with HTML line breaks
+    // Line breaks
     html = html.replace(/\n/g, '<br />')
 
     return <span dangerouslySetInnerHTML={{ __html: html }} />
@@ -364,10 +391,10 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
       const alt = match[1]
       const src = match[2]
       parts.push(
-        <div key={`img-${index}`} className="my-3 max-w-sm rounded-2xl overflow-hidden border shadow-sm bg-slate-100 dark:bg-slate-900">
+        <div key={`img-${index}`} className="my-3 max-w-sm rounded-3xl overflow-hidden border shadow-md bg-slate-100 dark:bg-slate-900 transition hover:scale-[1.01]">
           <img src={src} alt={alt} className="w-full h-48 object-cover" />
-          <div className="px-3 py-2 text-[11px] opacity-75 border-t italic font-sans truncate text-center">
-            {alt || 'Product Image'}
+          <div className="px-4 py-2 text-[10px] opacity-75 border-t italic font-sans truncate text-center font-bold tracking-wide uppercase">
+            {alt || 'Product Details'}
           </div>
         </div>
       )
@@ -394,7 +421,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
     return (
       <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-6 text-center">
         <AlertCircle className="h-16 w-16 text-red-500 mb-4" />
-        <h1 className="text-3xl font-extrabold">Assistant Not Found</h1>
+        <h1 className="text-3xl font-black">Assistant Not Found</h1>
         <p className="text-slate-400 mt-2 max-w-sm">
           The link you followed may be incorrect, or the owner may have removed this chatbot.
         </p>
@@ -414,51 +441,49 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center p-0 md:p-4 transition-colors duration-300"
+      className="min-h-screen flex flex-col md:flex-row p-0 md:p-4 transition-colors duration-300"
       style={{ backgroundColor: theme.bgColor }}
     >
       <div
-        className="w-full max-w-5xl h-screen md:h-[720px] border shadow-2xl md:rounded-3xl flex overflow-hidden relative"
-        style={{ borderColor: `${theme.bubbleBot}44`, backgroundColor: theme.bgColor }}
+        className="flex-1 w-full max-w-7xl mx-auto h-screen md:h-[760px] border shadow-2xl md:rounded-3xl flex overflow-hidden relative"
+        style={{ borderColor: `${theme.bubbleBot}33`, backgroundColor: theme.bgColor }}
       >
-        {/* ChatGPT-style Collapsible Left Sidebar */}
+        {/* ChatGPT-style Sleek Left Sidebar */}
         {visitorEmail && (
           <>
-            {/* Desktop Sidebar / Mobile overlay */}
+            {/* Sidebar mobile Backdrop */}
             <div
-              className={`fixed inset-0 z-30 bg-black/50 md:hidden transition-opacity ${
+              className={`fixed inset-0 z-30 bg-black/60 md:hidden transition-opacity duration-300 ${
                 isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
               }`}
               onClick={() => setIsSidebarOpen(false)}
             />
 
             <div
-              className={`w-72 border-r flex flex-col shrink-0 bg-slate-50 dark:bg-slate-950 z-40 md:z-10 md:static fixed top-0 bottom-0 left-0 transition-transform duration-300 md:translate-x-0 ${
+              className={`w-72 flex flex-col shrink-0 bg-[#0f1012] text-[#ececf1] z-40 md:z-10 md:static fixed top-0 bottom-0 left-0 transition-transform duration-300 md:translate-x-0 ${
                 isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
               }`}
-              style={{ borderRightColor: `${theme.bubbleBot}33` }}
             >
               {/* Sidebar Header */}
-              <div className="p-4 border-b flex items-center justify-between" style={{ borderBottomColor: `${theme.bubbleBot}33` }}>
-                <div className="flex items-center space-x-2.5">
+              <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+                <div className="flex items-center space-x-2.5 min-w-0">
                   <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border"
-                    style={{ backgroundColor: theme.primaryColor, borderColor: `${theme.bubbleBot}22` }}
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border border-slate-800 bg-slate-900"
                   >
                     {ai.ai_logo_url ? (
                       <img src={ai.ai_logo_url} alt="Logo" className="w-full h-full object-cover" />
                     ) : (
-                      <Bot className="h-4.5 w-4.5" />
+                      <Bot className="h-4.5 w-4.5 text-blue-500" />
                     )}
                   </div>
-                  <span className="font-extrabold text-sm truncate" style={{ color: theme.textColorBot }}>
+                  <span className="font-extrabold text-sm truncate">
                     {ai.ai_name || `${ai.name} Assistant`}
                   </span>
                 </div>
                 
                 <button
                   onClick={() => setIsSidebarOpen(false)}
-                  className="md:hidden p-1.5 hover:bg-slate-200 dark:hover:bg-slate-900 rounded-lg text-slate-500"
+                  className="md:hidden p-1.5 hover:bg-slate-900 rounded-lg text-slate-400 hover:text-white transition"
                 >
                   <X className="h-4.5 w-4.5" />
                 </button>
@@ -467,20 +492,19 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
               {/* Start New Chat Button */}
               <button
                 onClick={startNewChat}
-                className="mx-4 my-3 p-3 flex items-center justify-center space-x-2 border border-dashed rounded-2xl hover:opacity-90 active:scale-95 transition font-bold text-xs"
-                style={{ borderColor: theme.primaryColor, color: theme.primaryColor }}
+                className="mx-4 my-4 p-3 flex items-center justify-center space-x-2 border border-slate-800 hover:border-slate-600 rounded-xl hover:bg-white/5 active:scale-95 transition font-bold text-xs text-[#ececf1]"
               >
-                <Plus className="h-4 w-4" />
-                <span>Start New Chat</span>
+                <Plus className="h-4 w-4 text-blue-500" />
+                <span>New Chat</span>
               </button>
 
               {/* History list */}
-              <div className="flex-1 overflow-y-auto px-4 space-y-2 py-2">
-                <span className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wide mb-1.5">
+              <div className="flex-1 overflow-y-auto px-3 space-y-1.5 py-1">
+                <span className="block text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-2 pl-2">
                   Conversation History
                 </span>
                 {sessionsList.length === 0 ? (
-                  <div className="text-center py-8 text-xs text-slate-400 font-medium">
+                  <div className="text-center py-8 text-xs text-slate-500 font-medium">
                     No past sessions.
                   </div>
                 ) : (
@@ -488,20 +512,15 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                     <button
                       key={s.id}
                       onClick={() => handleSelectSession(s)}
-                      className={`w-full text-left p-3 rounded-2xl text-xs font-bold transition truncate flex items-center space-x-2.5 ${
+                      className={`w-full text-left px-3.5 py-3 rounded-xl text-xs font-bold transition truncate flex items-center space-x-2.5 ${
                         sessionId === s.visitor_session_id
-                          ? 'text-white'
-                          : 'hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 border border-transparent'
+                          ? 'bg-[#202123] text-white shadow-inner border border-white/5'
+                          : 'hover:bg-[#202123]/60 text-slate-400 hover:text-[#ececf1]'
                       }`}
-                      style={
-                        sessionId === s.visitor_session_id
-                          ? { backgroundColor: theme.primaryColor }
-                          : {}
-                      }
                     >
-                      <MessageSquare className="h-4 w-4 shrink-0 opacity-70" />
+                      <MessageSquare className="h-4 w-4 shrink-0 opacity-70 text-blue-500" />
                       <span className="truncate">
-                        Chat - {new Date(s.created_at).toLocaleDateString()}
+                        {s.title || `Chat - ${new Date(s.created_at).toLocaleDateString()}`}
                       </span>
                     </button>
                   ))
@@ -509,22 +528,27 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
               </div>
 
               {/* Sidebar Footer Account */}
-              <div className="p-4 border-t flex flex-col gap-2" style={{ borderTopColor: `${theme.bubbleBot}33` }}>
+              <div className="p-4 border-t border-slate-800 flex flex-col gap-2 bg-[#000]/20">
                 <div className="flex items-center justify-between min-w-0">
-                  <div className="min-w-0 flex-1">
-                    <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide">
-                      Logged in as
-                    </span>
-                    <span className="block text-xs font-bold truncate" style={{ color: theme.textColorBot }}>
-                      {visitorEmail}
-                    </span>
+                  <div className="min-w-0 flex-1 flex items-center space-x-2.5">
+                    <div className="w-7 h-7 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs shrink-0 border border-slate-700">
+                      <User className="h-3.5 w-3.5 text-blue-400" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <span className="block text-[8px] font-bold text-slate-500 uppercase tracking-wide">
+                        Active Account
+                      </span>
+                      <span className="block text-[11px] font-bold truncate text-slate-300">
+                        {visitorEmail}
+                      </span>
+                    </div>
                   </div>
                   <button
                     onClick={handleSignOut}
-                    className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg transition shrink-0"
+                    className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-white/5 rounded-lg transition shrink-0"
                     title="Sign Out"
                   >
-                    <LogOut className="h-4 w-4" />
+                    <LogOut className="h-4.5 w-4.5" />
                   </button>
                 </div>
               </div>
@@ -532,25 +556,25 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
           </>
         )}
 
-        {/* Chat Main Area */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Chat Main Area Container */}
+        <div className="flex-1 flex flex-col overflow-hidden bg-slate-50/30 dark:bg-slate-950/20">
           {/* Header */}
           <div
-            className="px-6 py-4 flex items-center justify-between border-b shrink-0"
-            style={{ borderBottomColor: `${theme.bubbleBot}33`, backgroundColor: theme.bgColor }}
+            className="px-6 py-4 flex items-center justify-between border-b shrink-0 bg-white dark:bg-slate-900 shadow-sm"
+            style={{ borderBottomColor: `${theme.bubbleBot}22` }}
           >
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 min-w-0">
               {visitorEmail && (
                 <button
                   onClick={() => setIsSidebarOpen(true)}
-                  className="md:hidden p-1.5 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg text-slate-500 mr-1"
+                  className="md:hidden p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 mr-1"
                 >
                   <Menu className="h-5 w-5" />
                 </button>
               )}
               
               <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-white overflow-hidden shrink-0 border"
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-white overflow-hidden shrink-0 border shadow-sm"
                 style={{ backgroundColor: theme.primaryColor, borderColor: `${theme.bubbleBot}33` }}
               >
                 {ai.ai_logo_url ? (
@@ -561,17 +585,17 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                   <Bot className="h-5 w-5" />
                 )}
               </div>
-              <div>
-                <h1 className="font-extrabold text-sm md:text-base leading-tight" style={{ color: theme.textColorBot }}>
+              <div className="min-w-0">
+                <h1 className="font-extrabold text-sm md:text-base leading-tight truncate" style={{ color: theme.textColorBot }}>
                   {ai.ai_name || `${ai.name} Assistant`}
                 </h1>
-                <span className="text-[10px] opacity-60 flex items-center gap-1 mt-0.5" style={{ color: theme.textColorBot }}>
-                  <span>Official Assistant for {ai.name}</span>
+                <span className="text-[10px] opacity-60 flex items-center gap-1.5 mt-0.5 truncate" style={{ color: theme.textColorBot }}>
+                  <span className="font-semibold text-primary">Assistant for {ai.name}</span>
                   {ai.location && (
                     <>
                       <span>•</span>
-                      <MapPin className="h-2.5 w-2.5 shrink-0" />
-                      <span>{ai.location}</span>
+                      <MapPin className="h-3 w-3 shrink-0 text-slate-400" />
+                      <span className="truncate">{ai.location}</span>
                     </>
                   )}
                 </span>
@@ -579,8 +603,8 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
             </div>
 
             <div className="flex items-center space-x-2">
-              <span className="text-[10px] px-2 py-1 rounded bg-slate-500/10 border uppercase tracking-wider opacity-60 font-semibold" style={{ color: theme.textColorBot }}>
-                Active Assistant
+              <span className="text-[10px] px-2.5 py-1 rounded bg-slate-500/10 border uppercase tracking-wider opacity-60 font-extrabold" style={{ color: theme.textColorBot }}>
+                Active Agent
               </span>
             </div>
           </div>
@@ -588,10 +612,10 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
           {/* 1. SECURE SIGN IN / SIGN UP MODAL */}
           {!visitorEmail ? (
             <div className="flex-1 flex items-center justify-center p-6 overflow-y-auto">
-              <div className="max-w-md w-full bg-white dark:bg-slate-950 border rounded-3xl p-6 md:p-8 shadow-xl space-y-6">
+              <div className="max-w-md w-full bg-white dark:bg-slate-950 border rounded-3xl p-6 md:p-8 shadow-2xl space-y-6">
                 <div className="text-center space-y-4">
                   <div 
-                    className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-white overflow-hidden shadow-md border"
+                    className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-white overflow-hidden shadow-md border"
                     style={{ backgroundColor: theme.primaryColor, borderColor: `${theme.bubbleBot}44` }}
                   >
                     {ai.ai_logo_url ? (
@@ -599,7 +623,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                     ) : ai.logo_url ? (
                       <img src={ai.logo_url} alt="Logo" className="w-full h-full object-cover" />
                     ) : (
-                      <Bot className="h-7 w-7" />
+                      <Bot className="h-8 w-8" />
                     )}
                   </div>
                   <div>
@@ -613,7 +637,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                 </div>
 
                 {/* Tab Switcher */}
-                <div className="flex bg-slate-100 dark:bg-slate-900 p-1.5 rounded-2xl">
+                <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-2xl">
                   <button
                     onClick={() => setAuthMode('signin')}
                     className={`flex-1 py-2 text-xs font-bold rounded-xl transition ${
@@ -647,8 +671,8 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                 <form onSubmit={authMode === 'signin' ? handleSignIn : handleSignUp} className="space-y-4">
                   <div>
                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1.5">Email Address</label>
-                    <div className="flex items-center bg-slate-50 dark:bg-slate-900 border rounded-2xl px-3 focus-within:ring-1 focus-within:ring-primary transition">
-                      <Mail className="h-4 w-4 text-slate-400 shrink-0 mr-2" />
+                    <div className="flex items-center bg-slate-50 dark:bg-slate-900 border rounded-2xl px-3.5 focus-within:ring-1 focus-within:ring-primary transition">
+                      <Mail className="h-4.5 w-4.5 text-slate-400 shrink-0 mr-2" />
                       <input
                         type="email"
                         ref={emailInputRef}
@@ -656,7 +680,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                         placeholder="you@domain.com"
                         value={emailInput}
                         onChange={(e) => setEmailInput(e.target.value)}
-                        className="flex-1 bg-transparent border-0 outline-none py-3 text-sm focus:ring-0"
+                        className="flex-1 bg-transparent border-0 outline-none py-3.5 text-sm focus:ring-0"
                         style={{ color: theme.textColorBot }}
                       />
                     </div>
@@ -664,15 +688,15 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
 
                   <div>
                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1.5">Password</label>
-                    <div className="flex items-center bg-slate-50 dark:bg-slate-900 border rounded-2xl px-3 focus-within:ring-1 focus-within:ring-primary transition">
-                      <Lock className="h-4 w-4 text-slate-400 shrink-0 mr-2" />
+                    <div className="flex items-center bg-slate-50 dark:bg-slate-900 border rounded-2xl px-3.5 focus-within:ring-1 focus-within:ring-primary transition">
+                      <Lock className="h-4.5 w-4.5 text-slate-400 shrink-0 mr-2" />
                       <input
                         type="password"
                         required
                         placeholder="••••••••"
                         value={passwordInput}
                         onChange={(e) => setPasswordInput(e.target.value)}
-                        className="flex-1 bg-transparent border-0 outline-none py-3 text-sm focus:ring-0"
+                        className="flex-1 bg-transparent border-0 outline-none py-3.5 text-sm focus:ring-0"
                         style={{ color: theme.textColorBot }}
                       />
                     </div>
@@ -681,7 +705,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                   <button
                     type="submit"
                     disabled={authLoading}
-                    className="w-full py-3.5 rounded-2xl font-bold flex items-center justify-center space-x-2 text-white transition hover:opacity-90 active:scale-95 text-sm"
+                    className="w-full py-3.5 rounded-2xl font-bold flex items-center justify-center space-x-2 text-white transition hover:opacity-90 active:scale-95 text-sm shadow-md"
                     style={{ backgroundColor: theme.primaryColor }}
                   >
                     {authLoading ? (
@@ -693,9 +717,9 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                   </button>
                 </form>
 
-                <div className="relative flex py-2 items-center">
+                <div className="relative flex py-1 items-center">
                   <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
-                  <span className="flex-shrink mx-4 text-[10px] text-slate-400 font-bold uppercase tracking-wider">or</span>
+                  <span className="flex-shrink mx-4 text-[9px] text-slate-400 font-bold uppercase tracking-wider">or</span>
                   <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
                 </div>
 
@@ -703,7 +727,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                 <button
                   type="button"
                   onClick={handleGoogleSignIn}
-                  className="w-full py-3.5 border rounded-2xl font-bold hover:bg-slate-50 dark:hover:bg-slate-900 flex items-center justify-center space-x-2.5 transition text-sm text-slate-700 dark:text-slate-200"
+                  className="w-full py-3.5 border rounded-2xl font-bold hover:bg-slate-50 dark:hover:bg-slate-900 flex items-center justify-center space-x-2.5 transition text-sm text-slate-700 dark:text-slate-200 shadow-sm"
                 >
                   <Compass className="h-4.5 w-4.5 text-primary" />
                   <span>Sign In with Google</span>
@@ -711,55 +735,186 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
               </div>
             </div>
           ) : (
-            /* 2. Interactive Chat Screen */
+            /* 2. Chat Layout with full width cleaner bubbles similar to ChatGPT / Gemini */
             <>
               {/* Message Panel */}
-              <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-4">
-                {/* Welcome Message */}
-                <div className="flex justify-start animate-in fade-in duration-200">
-                  <div
-                    className="max-w-[85%] rounded-2xl rounded-tl-none p-3.5 text-sm md:text-base leading-relaxed shadow-sm"
-                    style={{ backgroundColor: theme.bubbleBot, color: theme.textColorBot }}
-                  >
-                    {renderMessageContent(theme.welcomeMessage)}
-                  </div>
-                </div>
-
-                {/* Chat Messages */}
-                {messages.map((m) => (
-                  <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in duration-150`}>
-                    <div
-                      className={`max-w-[85%] rounded-2xl p-3.5 text-sm md:text-base leading-relaxed shadow-sm ${
-                        m.role === 'user' ? 'rounded-tr-none' : 'rounded-tl-none'
-                      }`}
-                      style={{
-                        backgroundColor: m.role === 'user' ? theme.bubbleUser : theme.bubbleBot,
-                        color: m.role === 'user' ? theme.textColorUser : theme.textColorBot,
-                      }}
+              <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-6">
+                
+                {/* 2.1 ChatGPT Welcome Screen (If no messages sent yet) */}
+                {messages.length === 0 && (
+                  <div className="max-w-2xl mx-auto py-10 md:py-16 text-center space-y-8 animate-in fade-in duration-300">
+                    <div 
+                      className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-white overflow-hidden shadow border"
+                      style={{ backgroundColor: theme.primaryColor, borderColor: `${theme.bubbleBot}44` }}
                     >
-                      {renderMessageContent(m.content)}
+                      {ai.ai_logo_url ? (
+                        <img src={ai.ai_logo_url} alt="Logo" className="w-full h-full object-cover" />
+                      ) : (
+                        <Bot className="h-6 w-6" />
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                        How can I help you today?
+                      </h2>
+                      <p className="text-sm text-slate-400 max-w-sm mx-auto">
+                        Ask details about catalog items, services, terms, location, or opening hours.
+                      </p>
+                    </div>
+
+                    {/* Pre-built clickable Prompt Cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-left max-w-xl mx-auto pt-4">
+                      <button
+                        onClick={() => submitMessage('Show me your goods & services catalog 📖')}
+                        className="p-4 border rounded-2xl hover:bg-white dark:hover:bg-slate-900/60 shadow-sm transition hover:shadow duration-200 text-slate-700 dark:text-slate-300 group flex items-start space-x-3 hover:border-blue-500/40 text-left bg-white/20"
+                      >
+                        <ShoppingBag className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
+                        <div>
+                          <span className="block text-xs font-extrabold group-hover:text-primary transition">Explore Catalog</span>
+                          <span className="block text-[11px] text-slate-400 mt-0.5">Browse all goods, products, and services.</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => submitMessage('What are your business opening hours? ⏰')}
+                        className="p-4 border rounded-2xl hover:bg-white dark:hover:bg-slate-900/60 shadow-sm transition hover:shadow duration-200 text-slate-700 dark:text-slate-300 group flex items-start space-x-3 hover:border-blue-500/40 text-left bg-white/20"
+                      >
+                        <Clock className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+                        <div>
+                          <span className="block text-xs font-extrabold group-hover:text-primary transition">Opening Hours</span>
+                          <span className="block text-[11px] text-slate-400 mt-0.5">Check schedule and working days.</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => submitMessage('Where is your business located? 📍')}
+                        className="p-4 border rounded-2xl hover:bg-white dark:hover:bg-slate-900/60 shadow-sm transition hover:shadow duration-200 text-slate-700 dark:text-slate-300 group flex items-start space-x-3 hover:border-blue-500/40 text-left bg-white/20"
+                      >
+                        <MapPin className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                        <div>
+                          <span className="block text-xs font-extrabold group-hover:text-primary transition">Find Location</span>
+                          <span className="block text-[11px] text-slate-400 mt-0.5">Locate store branch or physical address.</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => submitMessage('Can you explain your return and refund guidelines? 🔄')}
+                        className="p-4 border rounded-2xl hover:bg-white dark:hover:bg-slate-900/60 shadow-sm transition hover:shadow duration-200 text-slate-700 dark:text-slate-300 group flex items-start space-x-3 hover:border-blue-500/40 text-left bg-white/20"
+                      >
+                        <FileText className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+                        <div>
+                          <span className="block text-xs font-extrabold group-hover:text-primary transition">Refund Guidelines</span>
+                          <span className="block text-[11px] text-slate-400 mt-0.5">Learn about return policies and warranties.</span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* 2.2 Welcome Message (Always shows if messages exist, formatted correctly) */}
+                {messages.length > 0 && (
+                  <div className="flex justify-start items-start gap-3.5 max-w-3xl mx-auto">
+                    <div 
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border"
+                      style={{ backgroundColor: theme.primaryColor, borderColor: `${theme.bubbleBot}33` }}
+                    >
+                      {ai.ai_logo_url ? (
+                        <img src={ai.ai_logo_url} alt="Logo" className="w-full h-full object-cover" />
+                      ) : (
+                        <Bot className="h-4.5 w-4.5" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                        {ai.ai_name || `${ai.name} Assistant`}
+                      </span>
+                      <div className="text-slate-800 dark:text-slate-200 text-sm md:text-[15px] leading-relaxed select-text font-medium">
+                        {renderMessageContent(theme.welcomeMessage)}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 2.3 Conversational bubble listings */}
+                {messages.map((m) => (
+                  <div 
+                    key={m.id} 
+                    className={`flex items-start gap-3.5 max-w-3xl mx-auto ${
+                      m.role === 'user' ? 'justify-end' : 'justify-start'
+                    }`}
+                  >
+                    {/* Bot Avatar Left */}
+                    {m.role === 'model' && (
+                      <div 
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border"
+                        style={{ backgroundColor: theme.primaryColor, borderColor: `${theme.bubbleBot}33` }}
+                      >
+                        {ai.ai_logo_url ? (
+                          <img src={ai.ai_logo_url} alt="Logo" className="w-full h-full object-cover" />
+                        ) : (
+                          <Bot className="h-4.5 w-4.5" />
+                        )}
+                      </div>
+                    )}
+
+                    <div className={`min-w-0 ${m.role === 'user' ? 'flex flex-col items-end' : 'flex-1'}`}>
+                      <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                        {m.role === 'user' ? 'You' : (ai.ai_name || `${ai.name} Assistant`)}
+                      </span>
+                      
+                      {/* User gets a capsule bubble; Model gets a clean, modern flat text block */}
+                      {m.role === 'user' ? (
+                        <div 
+                          className="rounded-2xl px-4 py-2.5 text-sm md:text-[15px] leading-relaxed shadow-sm font-semibold select-text rounded-tr-none text-right"
+                          style={{
+                            backgroundColor: theme.bubbleUser,
+                            color: theme.textColorUser,
+                          }}
+                        >
+                          {m.content}
+                        </div>
+                      ) : (
+                        <div className="text-slate-800 dark:text-slate-200 text-sm md:text-[15px] leading-relaxed select-text font-medium">
+                          {renderMessageContent(m.content)}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
 
                 {/* Typing Indicator */}
                 {isTyping && (
-                  <div className="flex justify-start">
-                    <div
-                      className="rounded-2xl rounded-tl-none p-3.5 text-xs flex items-center space-x-1"
-                      style={{ backgroundColor: theme.bubbleBot, color: theme.textColorBot }}
+                  <div className="flex items-start gap-3.5 max-w-3xl mx-auto">
+                    <div 
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border"
+                      style={{ backgroundColor: theme.primaryColor, borderColor: `${theme.bubbleBot}33` }}
                     >
-                      <span className="animate-bounce font-bold">.</span>
-                      <span className="animate-bounce delay-100 font-bold">.</span>
-                      <span className="animate-bounce delay-200 font-bold">.</span>
+                      {ai.ai_logo_url ? (
+                        <img src={ai.ai_logo_url} alt="Logo" className="w-full h-full object-cover" />
+                      ) : (
+                        <Bot className="h-4.5 w-4.5" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                        {ai.ai_name || `${ai.name} Assistant`}
+                      </span>
+                      <div
+                        className="rounded-full px-4 py-2 bg-slate-100 dark:bg-slate-900 border text-slate-500 w-fit text-xs flex items-center space-x-1"
+                      >
+                        <span className="animate-bounce font-bold">.</span>
+                        <span className="animate-bounce delay-70 font-bold">.</span>
+                        <span className="animate-bounce delay-150 font-bold">.</span>
+                      </div>
                     </div>
                   </div>
                 )}
 
                 {/* Error Message */}
                 {errorText && (
-                  <div className="p-3 bg-red-500/10 border border-red-500/25 text-red-500 rounded-xl text-xs flex items-center space-x-2">
-                    <AlertCircle className="h-4 w-4 shrink-0" />
+                  <div className="max-w-3xl mx-auto p-4 bg-red-500/10 border border-red-500/25 text-red-500 rounded-2xl text-xs flex items-center space-x-2 animate-in fade-in">
+                    <AlertCircle className="h-4.5 w-4.5 shrink-0" />
                     <span>{errorText}</span>
                   </div>
                 )}
@@ -767,36 +922,37 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                 <div ref={chatEndRef} />
               </div>
 
-              {/* Input Panel */}
-              <form
-                onSubmit={handleSend}
-                className="p-4 border-t flex space-x-2 bg-white dark:bg-slate-900 shrink-0"
-                style={{ borderTopColor: `${theme.bubbleBot}33`, backgroundColor: theme.bgColor }}
-              >
-                <input
-                  type="text"
-                  ref={chatInputRef}
-                  required
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder={`Ask ${ai.ai_name || ai.name} something...`}
-                  className="flex-1 bg-slate-100 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary outline-none transition animate-in fade-in duration-300"
-                  style={{ color: theme.textColorBot }}
-                />
-                <button
-                  type="submit"
-                  disabled={!input.trim() || isTyping}
-                  className="p-3.5 rounded-2xl flex items-center justify-center text-white transition hover:opacity-90 active:scale-95"
-                  style={{ backgroundColor: theme.primaryColor }}
+              {/* Clean Floating Input Area (ChatGPT/Gemini style) */}
+              <div className="p-4 md:p-6 shrink-0 bg-transparent">
+                <form
+                  onSubmit={handleSend}
+                  className="max-w-3xl mx-auto border shadow-lg rounded-2xl flex items-center space-x-2 bg-white dark:bg-slate-900 p-2 border-slate-200 dark:border-slate-800 focus-within:ring-1 focus-within:ring-primary/45 transition duration-200"
                 >
-                  <Send className="h-4.5 w-4.5" />
-                </button>
-              </form>
+                  <input
+                    type="text"
+                    ref={chatInputRef}
+                    required
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={`Message ${ai.ai_name || ai.name}...`}
+                    className="flex-1 bg-transparent border-0 outline-none px-3.5 py-3 text-sm focus:ring-0"
+                    style={{ color: theme.textColorBot }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!input.trim() || isTyping}
+                    className="p-3 rounded-xl flex items-center justify-center text-white transition hover:opacity-90 active:scale-95 shadow shrink-0"
+                    style={{ backgroundColor: theme.primaryColor }}
+                  >
+                    <Send className="h-4.5 w-4.5" />
+                  </button>
+                </form>
+              </div>
             </>
           )}
 
           {/* Footer branding */}
-          <div className="text-[9px] text-center pb-2 opacity-40 font-mono uppercase tracking-wider shrink-0" style={{ color: theme.textColorBot }}>
+          <div className="text-[9px] text-center pb-2.5 opacity-40 font-mono uppercase tracking-wider shrink-0" style={{ color: theme.textColorBot }}>
             Powered by Bult.AI
           </div>
         </div>
