@@ -25,7 +25,8 @@ import {
   Image as ImageIcon,
   MapPin,
   Building,
-  Upload
+  Upload,
+  Bot
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -90,6 +91,9 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
   const [aiLocation, setAiLocation] = useState('')
   const [aiLogoUrl, setAiLogoUrl] = useState('')
   const [logoUploading, setLogoUploading] = useState(false)
+  const [botName, setBotName] = useState('')
+  const [botLogoUrl, setBotLogoUrl] = useState('')
+  const [botLogoUploading, setBotLogoUploading] = useState(false)
 
   // Profile Catalog States
   const [currency, setCurrency] = useState('USD')
@@ -173,6 +177,8 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
     setAiName(aiData.name || '')
     setAiLocation(aiData.location || '')
     setAiLogoUrl(aiData.logo_url || '')
+    setBotName(aiData.ai_name || '')
+    setBotLogoUrl(aiData.ai_logo_url || '')
 
     // Fetch the business profile source
     const { data: sourceData } = await supabase
@@ -265,7 +271,9 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
       .update({
         name: aiName.trim(),
         location: aiLocation.trim(),
-        logo_url: aiLogoUrl
+        logo_url: aiLogoUrl,
+        ai_name: botName.trim(),
+        ai_logo_url: botLogoUrl
       })
       .eq('id', params.aiId)
 
@@ -276,7 +284,14 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
       setSaveStatus('saved')
       setTimeout(() => setSaveStatus('idle'), 2000)
       // Refresh AI state local
-      setAi((prev: any) => ({ ...prev, name: aiName.trim(), location: aiLocation.trim(), logo_url: aiLogoUrl }))
+      setAi((prev: any) => ({ 
+        ...prev, 
+        name: aiName.trim(), 
+        location: aiLocation.trim(), 
+        logo_url: aiLogoUrl,
+        ai_name: botName.trim(),
+        ai_logo_url: botLogoUrl
+      }))
     }
   }
 
@@ -321,6 +336,29 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
       alert('Logo upload failed: ' + err.message)
     } finally {
       setLogoUploading(false)
+    }
+  }
+
+  const handleBotLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setBotLogoUploading(true)
+    try {
+      const url = await uploadImageToStorage(file)
+      setBotLogoUrl(url)
+      
+      // Update Logo immediately in database
+      await supabase
+        .from('business_ais')
+        .update({ ai_logo_url: url })
+        .eq('id', params.aiId)
+
+      setSaveStatus('saved')
+      setTimeout(() => setSaveStatus('idle'), 2000)
+    } catch (err: any) {
+      alert('AI logo upload failed: ' + err.message)
+    } finally {
+      setBotLogoUploading(false)
     }
   }
 
@@ -887,6 +925,53 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                         </label>
                         <p className="text-[10px] text-slate-400 mt-2">
                           Images will be uploaded to Supabase Storage and served publically.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* AI Name */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2">AI Assistant Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={botName}
+                      onChange={(e) => setBotName(e.target.value)}
+                      placeholder="e.g. ChatBot, SupportAgent"
+                      className="w-full bg-slate-50 dark:bg-slate-900 border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+
+                  {/* AI Logo Upload */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2">AI Assistant Logo</label>
+                    <div className="flex items-center gap-6 flex-wrap">
+                      <div className="w-20 h-20 rounded-2xl border bg-slate-50 dark:bg-slate-900 flex items-center justify-center overflow-hidden shrink-0">
+                        {botLogoUrl ? (
+                          <img src={botLogoUrl} alt="AI Logo" className="w-full h-full object-cover" />
+                        ) : (
+                          <Bot className="h-8 w-8 text-slate-300" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-[200px]">
+                        <label className="relative cursor-pointer inline-flex items-center space-x-2 px-4 py-2.5 border rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                          {botLogoUploading ? (
+                            <RefreshCw className="h-4 w-4 animate-spin text-primary" />
+                          ) : (
+                            <Upload className="h-4 w-4" />
+                          )}
+                          <span>{botLogoUploading ? 'Uploading Logo...' : 'Upload AI Logo from Gallery'}</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleBotLogoUpload}
+                            disabled={botLogoUploading}
+                            className="hidden"
+                          />
+                        </label>
+                        <p className="text-[10px] text-slate-400 mt-2">
+                          This logo will represent the AI in the chat platform.
                         </p>
                       </div>
                     </div>

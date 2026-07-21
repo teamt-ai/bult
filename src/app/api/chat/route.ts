@@ -29,10 +29,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 })
     }
 
-    // 1. Fetch AI details (including location)
+    // 1. Fetch AI details (including location and bot identity)
     const { data: ai, error: aiError } = await supabase
       .from('business_ais')
-      .select('name, theme_settings, location')
+      .select('name, theme_settings, location, ai_name, ai_logo_url')
       .eq('id', aiId)
       .single()
 
@@ -123,6 +123,9 @@ export async function POST(req: NextRequest) {
                     priceStr += ` (Reduced from ${curSymbol}${item.price.toFixed(2)})`
                   }
                   output += `${indent}  - Item: ${item.name} | Price: ${priceStr}\n`
+                  if (item.image) {
+                    output += `${indent}    Image URL: ${item.image}\n`
+                  }
                   if (item.description) {
                     output += `${indent}    Description: ${item.description}\n`
                   }
@@ -193,10 +196,11 @@ export async function POST(req: NextRequest) {
       .single()
 
     // 6. Call Gemini 3.5 Flash via Google SDK with Salesperson System Instructions
+    const botName = ai.ai_name || `${ai.name} Assistant`
     const aiClient = new GoogleGenerativeAI(apiKey)
     const model = aiClient.getGenerativeModel({
       model: 'gemini-3.5-flash',
-      systemInstruction: `You are the official AI Assistant and the world's best sales marketer for ${ai.name}.
+      systemInstruction: `You are ${botName}, the official AI Assistant and the world's best sales marketer working for ${ai.name}.
 Your job is to answer customer questions using ONLY the provided business sources and catalog, maximize sales conversion, and cross-sell related products.
 
 CRITICAL RULES & SELLING STRATEGY:
@@ -206,6 +210,7 @@ CRITICAL RULES & SELLING STRATEGY:
    Example: If they ask for a "blue Chanel bag" and we only have a "red Gucci bag", say: "We don't have a blue Chanel bag right now, but we have a stunning red Gucci bag that matches that elegant style, or a blue wallet that could complement it!"
 4. Cross-Selling Rule (VERY IMPORTANT): Suggest matching accessories or complementary items. If they order a bag, ask if they need shoes or a wallet to go with it. Gently suggest matching items from the catalog throughout the conversation.
 5. Customer Context Rule: Review the provided CUSTOMER CONVERSATION HISTORY. If they refer to past orders or questions (e.g., "the shoe I ordered last month, do you still have it?"), locate that item in the history, verify its availability in the current catalog, and answer appropriately.
+6. Product Image Rule: If the customer asks to see the image or photo of any goods/products, or asks "can I see it?", you MUST provide the image by rendering the exact Image URL associated with that product in the catalog in standard markdown image format: ![Product Name](Image URL). Do not make up URLs; only use the exact URLs provided in the catalog.
 
 OFFICIAL BUSINESS SOURCES:
 ${finalContext || 'No business information has been uploaded yet.'}

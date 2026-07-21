@@ -144,7 +144,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
     setIsTyping(true)
 
     try {
-      // Keep only last 8 messages for context history
+      // Keep only last 8 messages for active context history
       const recentHistory = messages.slice(-8).map((m) => ({
         role: m.role,
         content: m.content,
@@ -183,6 +183,38 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
     } finally {
       setIsTyping(false)
     }
+  }
+
+  const renderMessageContent = (content: string) => {
+    // Regex to match markdown images: ![alt](url)
+    const imgRegex = /!\[(.*?)\]\((.*?)\)/g
+    const parts = []
+    let lastIndex = 0
+    let match
+
+    while ((match = imgRegex.exec(content)) !== null) {
+      const index = match.index
+      if (index > lastIndex) {
+        parts.push(<span key={lastIndex}>{content.substring(lastIndex, index)}</span>)
+      }
+      const alt = match[1]
+      const src = match[2]
+      parts.push(
+        <div key={index} className="my-3 max-w-sm rounded-2xl overflow-hidden border shadow-sm bg-slate-100 dark:bg-slate-900">
+          <img src={src} alt={alt} className="w-full h-48 object-cover" />
+          <div className="px-3 py-2 text-[11px] opacity-75 border-t italic font-sans truncate text-center">
+            {alt || 'Product Image'}
+          </div>
+        </div>
+      )
+      lastIndex = imgRegex.lastIndex
+    }
+
+    if (lastIndex < content.length) {
+      parts.push(<span key={lastIndex}>{content.substring(lastIndex)}</span>)
+    }
+
+    return parts.length > 0 ? parts : content
   }
 
   if (loading) {
@@ -231,25 +263,31 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
         >
           <div className="flex items-center space-x-3">
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center text-white overflow-hidden shrink-0"
-              style={{ backgroundColor: theme.primaryColor }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white overflow-hidden shrink-0 border"
+              style={{ backgroundColor: theme.primaryColor, borderColor: `${theme.bubbleBot}33` }}
             >
-              {ai.logo_url ? (
+              {ai.ai_logo_url ? (
+                <img src={ai.ai_logo_url} alt="AI Logo" className="w-full h-full object-cover" />
+              ) : ai.logo_url ? (
                 <img src={ai.logo_url} alt="Logo" className="w-full h-full object-cover" />
               ) : (
                 <Bot className="h-5 w-5" />
               )}
             </div>
             <div>
-              <h1 className="font-bold text-sm md:text-base leading-tight" style={{ color: theme.textColorBot }}>
-                {ai.name}
+              <h1 className="font-bold text-sm md:text-base leading-tight animate-in fade-in" style={{ color: theme.textColorBot }}>
+                {ai.ai_name || `${ai.name} Assistant`}
               </h1>
-              {ai.location && (
-                <span className="text-[10px] opacity-60 flex items-center gap-1 mt-0.5" style={{ color: theme.textColorBot }}>
-                  <MapPin className="h-3 w-3 shrink-0" />
-                  <span>{ai.location}</span>
-                </span>
-              )}
+              <span className="text-[10px] opacity-60 flex items-center gap-1 mt-0.5" style={{ color: theme.textColorBot }}>
+                <span>Official Assistant for {ai.name}</span>
+                {ai.location && (
+                  <>
+                    <span>•</span>
+                    <MapPin className="h-2.5 w-2.5 shrink-0" />
+                    <span>{ai.location}</span>
+                  </>
+                )}
+              </span>
             </div>
           </div>
           
@@ -274,10 +312,12 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
           <div className="flex-1 flex items-center justify-center p-6 md:p-12">
             <div className="max-w-md w-full text-center space-y-6">
               <div 
-                className="w-16 h-16 rounded-3xl mx-auto flex items-center justify-center text-white overflow-hidden shadow-md"
-                style={{ backgroundColor: theme.primaryColor }}
+                className="w-16 h-16 rounded-3xl mx-auto flex items-center justify-center text-white overflow-hidden shadow-md border"
+                style={{ backgroundColor: theme.primaryColor, borderColor: `${theme.bubbleBot}44` }}
               >
-                {ai.logo_url ? (
+                {ai.ai_logo_url ? (
+                  <img src={ai.ai_logo_url} alt="AI Logo" className="w-full h-full object-cover" />
+                ) : ai.logo_url ? (
                   <img src={ai.logo_url} alt="Logo" className="w-full h-full object-cover" />
                 ) : (
                   <Bot className="h-8 w-8" />
@@ -286,10 +326,10 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
               
               <div>
                 <h2 className="text-2xl font-extrabold tracking-tight" style={{ color: theme.textColorBot }}>
-                  Chat with {ai.name}
+                  Chat with {ai.ai_name || `${ai.name} Assistant`}
                 </h2>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-                  Enter your email address to initiate the chat session. This helps us remember your past orders and preferences.
+                  Enter your email address to initiate the chat session. This helps us remember your past orders and preferences at {ai.name}.
                 </p>
               </div>
 
@@ -351,7 +391,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                       color: m.role === 'user' ? theme.textColorUser : theme.textColorBot,
                     }}
                   >
-                    {m.content}
+                    {renderMessageContent(m.content)}
                   </div>
                 </div>
               ))}
@@ -393,7 +433,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                 required
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder={`Ask ${ai.name} something...`}
+                placeholder={`Ask ${ai.ai_name || ai.name} something...`}
                 className="flex-1 bg-slate-100 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary outline-none transition animate-in fade-in duration-300"
                 style={{ color: theme.textColorBot }}
               />
