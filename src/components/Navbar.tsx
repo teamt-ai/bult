@@ -43,13 +43,13 @@ export default function Navbar() {
           {/* Theme Mode Toggle Button */}
           <button
             onClick={toggleThemeMode}
-            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
             aria-label="Toggle theme mode"
           >
             {themeMode === 'light' ? (
-              <Moon className="h-5 w-5 text-slate-700" />
+              <Moon className="h-5 w-5 text-zinc-700" />
             ) : (
-              <Sun className="h-5 w-5 text-slate-300" />
+              <Sun className="h-5 w-5 text-zinc-305" />
             )}
           </button>
 

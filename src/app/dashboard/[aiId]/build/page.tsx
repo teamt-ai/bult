@@ -587,7 +587,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
     return (
       <div 
         key={category.id} 
-        className="border rounded-2xl p-4 bg-slate-50/50 dark:bg-slate-900/20 mb-4 transition hover:border-slate-300 dark:hover:border-slate-800"
+        className="border rounded-2xl p-4 bg-zinc-50/50 dark:bg-zinc-900/20 mb-4 transition hover:border-zinc-305 dark:hover:border-zinc-800"
         style={{ marginLeft: `${depth * 1.2}rem` }}
       >
         {/* Category Header */}
@@ -595,18 +595,18 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
           <div className="flex items-center space-x-2">
             <button
               onClick={() => toggleCategoryCollapse(category.id)}
-              className="p-1 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition shrink-0"
+              className="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded transition shrink-0"
               title={isCollapsed ? 'Expand Category' : 'Collapse Category'}
             >
               {isCollapsed ? (
-                <ChevronRight className="h-4.5 w-4.5 text-slate-500" />
+                <ChevronRight className="h-4.5 w-4.5 text-zinc-500" />
               ) : (
-                <ChevronDown className="h-4.5 w-4.5 text-slate-500" />
+                <ChevronDown className="h-4.5 w-4.5 text-zinc-500" />
               )}
             </button>
-            <h4 className="font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5 text-base md:text-lg">
+            <h4 className="font-extrabold text-zinc-900 dark:text-white flex items-center gap-1.5 text-base md:text-lg">
               <span>{category.name}</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full border bg-slate-100 dark:bg-slate-800 text-slate-400 font-semibold tracking-wider uppercase font-mono">
+              <span className="text-[10px] px-2 py-0.5 rounded-full border bg-zinc-100 dark:bg-zinc-800 text-zinc-400 font-semibold tracking-wider uppercase font-mono">
                 {isEmpty ? 'Empty' : hasSubcats ? 'Branch' : 'Items'}
               </span>
             </h4>
@@ -615,14 +615,14 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
           <div className="flex items-center space-x-1.5">
             <button
               onClick={() => handleOpenCategoryModal(null, category)}
-              className="p-1.5 text-slate-500 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition"
+              className="p-1.5 text-zinc-500 hover:text-primary hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition"
               title="Rename Category"
             >
               <Edit3 className="h-4 w-4" />
             </button>
             <button
               onClick={() => handleDeleteCategory(category.id)}
-              className="p-1.5 text-slate-500 hover:text-red-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition"
+              className="p-1.5 text-zinc-500 hover:text-red-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition"
               title="Delete Category"
             >
               <Trash2 className="h-4 w-4" />
@@ -640,7 +640,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                 <div className="flex items-center" style={{ marginLeft: `${(depth + 1) * 1.2}rem` }}>
                   <button
                     onClick={() => handleOpenCategoryModal(category.id)}
-                    className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-bold border rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition text-slate-600 dark:text-slate-300"
+                    className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-bold border rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-900 transition text-zinc-600 dark:text-zinc-305"
                   >
                     <FolderPlus className="h-3.5 w-3.5" />
                     <span>Add Subcategory under {category.name}</span>
@@ -662,7 +662,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                   return (
                     <div 
                       key={item.id} 
-                      className="flex gap-4 p-3 bg-white dark:bg-slate-950 border rounded-2xl shadow-sm relative overflow-hidden"
+                      className="flex gap-4 p-3 bg-white dark:bg-zinc-950 border rounded-2xl shadow-sm relative overflow-hidden"
                     >
                       {item.image && (
                         <img 
@@ -673,10 +673,10 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                       )}
                       <div className="flex-1 min-w-0 flex flex-col justify-between">
                         <div>
-                          <h5 className="font-bold text-sm text-slate-900 dark:text-white truncate pr-14">
+                          <h5 className="font-bold text-sm text-zinc-900 dark:text-white truncate pr-14">
                             {item.name}
                           </h5>
-                          <p className="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+                          <p className="text-xs text-zinc-400 mt-1 line-clamp-2 leading-relaxed">
                             {item.description || 'No description provided.'}
                           </p>
                         </div>
@@ -687,7 +687,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                           </span>
                           {item.discountType !== 'none' && (
                             <>
-                              <span className="text-xs line-through text-slate-400">
+                              <span className="text-xs line-through text-zinc-400">
                                 {curSymbol}{item.price.toFixed(2)}
                               </span>
                               <span className="text-[9px] px-1.5 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-500 font-bold uppercase tracking-wide">
@@ -702,13 +702,13 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                       <div className="absolute top-2 right-2 flex space-x-1">
                         <button
                           onClick={() => handleOpenItemModal(category.id, item)}
-                          className="p-1.5 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 border text-slate-500 hover:text-primary rounded-lg transition"
+                          className="p-1.5 bg-zinc-50 dark:bg-zinc-900 hover:bg-zinc-100 border text-zinc-500 hover:text-primary rounded-lg transition"
                         >
                           <Edit3 className="h-3.5 w-3.5" />
                         </button>
                         <button
                           onClick={() => handleDeleteItem(category.id, item.id)}
-                          className="p-1.5 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 border text-slate-500 hover:text-red-500 rounded-lg transition"
+                          className="p-1.5 bg-zinc-50 dark:bg-zinc-900 hover:bg-zinc-100 border text-zinc-500 hover:text-red-500 rounded-lg transition"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
@@ -719,7 +719,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                 <div className="sm:col-span-2">
                   <button
                     onClick={() => handleOpenItemModal(category.id)}
-                    className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-bold border rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition text-slate-600 dark:text-slate-300"
+                    className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-bold border rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-900 transition text-zinc-600 dark:text-zinc-305"
                   >
                     <Package className="h-3.5 w-3.5" />
                     <span>Add Goods or Service inside {category.name}</span>
@@ -730,20 +730,20 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
 
             {/* 3. Empty Category: Can choose to hold Subcategories OR Goods & Services */}
             {isEmpty && (
-              <div className="flex flex-col sm:flex-row gap-2 py-4 justify-center items-center border border-dashed rounded-2xl bg-white dark:bg-slate-950/30">
-                <span className="text-xs text-slate-400 font-medium mb-2 sm:mb-0 mr-2">Choose what {category.name} will contain:</span>
+              <div className="flex flex-col sm:flex-row gap-2 py-4 justify-center items-center border border-dashed rounded-2xl bg-white dark:bg-zinc-950/30">
+                <span className="text-xs text-zinc-400 font-medium mb-2 sm:mb-0 mr-2">Choose what {category.name} will contain:</span>
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleOpenCategoryModal(category.id)}
-                    className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 text-primary transition"
+                    className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold border border-zinc-200 dark:border-zinc-800 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-900 text-primary transition"
                   >
                     <FolderPlus className="h-3.5 w-3.5" />
                     <span>Subcategories</span>
                   </button>
-                  <span className="text-slate-300 dark:text-slate-800 self-center">or</span>
+                  <span className="text-zinc-305 dark:text-zinc-800 self-center">or</span>
                   <button
                     onClick={() => handleOpenItemModal(category.id)}
-                    className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 text-emerald-500 transition"
+                    className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold border border-zinc-200 dark:border-zinc-800 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-900 text-emerald-500 transition"
                   >
                     <Package className="h-3.5 w-3.5" />
                     <span>Goods & Services</span>
@@ -790,7 +790,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
             <h1 className="text-3xl font-extrabold tracking-tight">
               Build Business Profile: <span className="gradient-text">{ai?.name}</span>
             </h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
               Add products, services, opening hours, terms, and refund guidelines to program your AI assistant.
             </p>
           </div>
@@ -829,7 +829,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                 className={`pb-3 font-extrabold text-sm md:text-base border-b-2 transition flex items-center space-x-2 ${
                   activeTab === 'profile'
                     ? 'border-primary text-primary'
-                    : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
+                    : 'border-transparent text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-305'
                 }`}
               >
                 <Building className="h-4.5 w-4.5" />
@@ -840,7 +840,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                 className={`pb-3 font-extrabold text-sm md:text-base border-b-2 transition flex items-center space-x-2 ${
                   activeTab === 'goods'
                     ? 'border-primary text-primary'
-                    : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
+                    : 'border-transparent text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-305'
                 }`}
               >
                 <LayoutGrid className="h-4.5 w-4.5" />
@@ -851,7 +851,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                 className={`pb-3 font-extrabold text-sm md:text-base border-b-2 transition flex items-center space-x-2 ${
                   activeTab === 'company'
                     ? 'border-primary text-primary'
-                    : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
+                    : 'border-transparent text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-305'
                 }`}
               >
                 <FileText className="h-4.5 w-4.5" />
@@ -861,7 +861,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
 
             {/* TAB 0: PROFILE SETTINGS */}
             {activeTab === 'profile' && (
-              <div className="max-w-2xl bg-white dark:bg-slate-950 border rounded-3xl p-6 md:p-8 shadow-sm">
+              <div className="max-w-2xl bg-white dark:bg-zinc-950 border rounded-3xl p-6 md:p-8 shadow-sm">
                 <h3 className="text-xl font-bold mb-6 border-b pb-3 flex items-center gap-2">
                   <Building className="h-5 w-5 text-primary" />
                   <span>Company Identity & Settings</span>
@@ -870,22 +870,22 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                 <form onSubmit={handleSaveProfileSettings} className="space-y-6">
                   {/* Name */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Business Name</label>
+                    <label className="block text-xs font-bold text-zinc-400 uppercase mb-2">Business Name</label>
                     <input
                       type="text"
                       required
                       value={aiName}
                       onChange={(e) => setAiName(e.target.value)}
                       placeholder="e.g. Acme Café"
-                      className="w-full bg-slate-50 dark:bg-slate-900 border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                      className="w-full bg-zinc-50 dark:bg-zinc-900 border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
 
                   {/* Location */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Location / Address</label>
-                    <div className="flex items-center bg-slate-50 dark:bg-slate-900 border rounded-xl px-3 focus-within:ring-1 focus-within:ring-primary">
-                      <MapPin className="h-4 w-4 text-slate-400 shrink-0 mr-2" />
+                    <label className="block text-xs font-bold text-zinc-400 uppercase mb-2">Location / Address</label>
+                    <div className="flex items-center bg-zinc-50 dark:bg-zinc-900 border rounded-xl px-3 focus-within:ring-1 focus-within:ring-primary">
+                      <MapPin className="h-4 w-4 text-zinc-400 shrink-0 mr-2" />
                       <input
                         type="text"
                         value={aiLocation}
@@ -898,17 +898,17 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
 
                   {/* Logo Upload */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Business Logo</label>
+                    <label className="block text-xs font-bold text-zinc-400 uppercase mb-2">Business Logo</label>
                     <div className="flex items-center gap-6 flex-wrap">
-                      <div className="w-20 h-20 rounded-2xl border bg-slate-50 dark:bg-slate-900 flex items-center justify-center overflow-hidden shrink-0">
+                      <div className="w-20 h-20 rounded-2xl border bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center overflow-hidden shrink-0">
                         {aiLogoUrl ? (
                           <img src={aiLogoUrl} alt="Logo" className="w-full h-full object-cover" />
                         ) : (
-                          <Building className="h-8 w-8 text-slate-300" />
+                          <Building className="h-8 w-8 text-zinc-305" />
                         )}
                       </div>
                       <div className="flex-1 min-w-[200px]">
-                        <label className="relative cursor-pointer inline-flex items-center space-x-2 px-4 py-2.5 border rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                        <label className="relative cursor-pointer inline-flex items-center space-x-2 px-4 py-2.5 border rounded-xl text-sm font-semibold hover:bg-zinc-50 dark:hover:bg-zinc-900 transition">
                           {logoUploading ? (
                             <RefreshCw className="h-4 w-4 animate-spin text-primary" />
                           ) : (
@@ -923,7 +923,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                             className="hidden"
                           />
                         </label>
-                        <p className="text-[10px] text-slate-400 mt-2">
+                        <p className="text-[10px] text-zinc-400 mt-2">
                           Images will be uploaded to Supabase Storage and served publically.
                         </p>
                       </div>
@@ -932,30 +932,30 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
 
                   {/* AI Name */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2">AI Assistant Name</label>
+                    <label className="block text-xs font-bold text-zinc-400 uppercase mb-2">AI Assistant Name</label>
                     <input
                       type="text"
                       required
                       value={botName}
                       onChange={(e) => setBotName(e.target.value)}
                       placeholder="e.g. ChatBot, SupportAgent"
-                      className="w-full bg-slate-50 dark:bg-slate-900 border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                      className="w-full bg-zinc-50 dark:bg-zinc-900 border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
 
                   {/* AI Logo Upload */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2">AI Assistant Logo</label>
+                    <label className="block text-xs font-bold text-zinc-400 uppercase mb-2">AI Assistant Logo</label>
                     <div className="flex items-center gap-6 flex-wrap">
-                      <div className="w-20 h-20 rounded-2xl border bg-slate-50 dark:bg-slate-900 flex items-center justify-center overflow-hidden shrink-0">
+                      <div className="w-20 h-20 rounded-2xl border bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center overflow-hidden shrink-0">
                         {botLogoUrl ? (
                           <img src={botLogoUrl} alt="AI Logo" className="w-full h-full object-cover" />
                         ) : (
-                          <Bot className="h-8 w-8 text-slate-300" />
+                          <Bot className="h-8 w-8 text-zinc-305" />
                         )}
                       </div>
                       <div className="flex-1 min-w-[200px]">
-                        <label className="relative cursor-pointer inline-flex items-center space-x-2 px-4 py-2.5 border rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                        <label className="relative cursor-pointer inline-flex items-center space-x-2 px-4 py-2.5 border rounded-xl text-sm font-semibold hover:bg-zinc-50 dark:hover:bg-zinc-900 transition">
                           {botLogoUploading ? (
                             <RefreshCw className="h-4 w-4 animate-spin text-primary" />
                           ) : (
@@ -970,7 +970,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                             className="hidden"
                           />
                         </label>
-                        <p className="text-[10px] text-slate-400 mt-2">
+                        <p className="text-[10px] text-zinc-400 mt-2">
                           This logo will represent the AI in the chat platform.
                         </p>
                       </div>
@@ -979,14 +979,14 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
 
                   {/* Currency Selector */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Primary Business Currency</label>
+                    <label className="block text-xs font-bold text-zinc-400 uppercase mb-2">Primary Business Currency</label>
                     <select
                       value={currency}
                       onChange={(e) => {
                         setCurrency(e.target.value)
                         saveProfile(goodsServices, companyInfo, e.target.value)
                       }}
-                      className="w-full max-w-md bg-slate-50 dark:bg-slate-900 border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                      className="w-full max-w-md bg-zinc-50 dark:bg-zinc-900 border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                     >
                       <optgroup label="Popular International Currencies">
                         {CURRENCY_OPTIONS.slice(0, 10).map(c => (
@@ -1015,11 +1015,11 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
             {/* TAB 1: GOODS & SERVICES */}
             {activeTab === 'goods' && (
               <div className="space-y-6">
-                <div className="bg-white dark:bg-slate-950 border rounded-3xl p-6 shadow-sm">
+                <div className="bg-white dark:bg-zinc-950 border rounded-3xl p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-6 flex-wrap gap-4 border-b pb-4">
                     <div>
                       <h3 className="text-xl font-bold">Catalog Category Tree</h3>
-                      <p className="text-xs text-slate-400 mt-1">
+                      <p className="text-xs text-zinc-400 mt-1">
                         Build your categories hierarchy. Categories can hold subcategories OR goods/services, but not both at once.
                       </p>
                     </div>
@@ -1041,9 +1041,9 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
 
                   {goodsServices.length === 0 ? (
                     <div className="text-center py-16">
-                      <FolderPlus className="h-10 w-10 text-slate-300 mx-auto mb-3" />
-                      <h4 className="font-bold text-slate-700 dark:text-slate-300">Catalog is empty</h4>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs mx-auto">
+                      <FolderPlus className="h-10 w-10 text-zinc-305 mx-auto mb-3" />
+                      <h4 className="font-bold text-zinc-700 dark:text-zinc-305">Catalog is empty</h4>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-xs mx-auto">
                         Get started by adding a top-level category like "Beverages", "Computers", or "Consultation Services".
                       </p>
                     </div>
@@ -1061,7 +1061,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
               <div className="grid lg:grid-cols-12 gap-8">
                 {/* Editor Block Form */}
                 <div className="lg:col-span-5">
-                  <div className="bg-white dark:bg-slate-950 border rounded-3xl p-6 shadow-sm sticky top-24">
+                  <div className="bg-white dark:bg-zinc-950 border rounded-3xl p-6 shadow-sm sticky top-24">
                     <h3 className="text-xl font-bold mb-4">
                       {companyBlockId ? 'Edit Info Block' : 'Add New Info Block'}
                     </h3>
@@ -1069,12 +1069,12 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                     {/* Preset buttons */}
                     {!companyBlockId && (
                       <div className="mb-6">
-                        <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2">Preset Quick Titles</span>
+                        <span className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wide mb-2">Preset Quick Titles</span>
                         <div className="flex flex-wrap gap-2">
                           <button
                             type="button"
                             onClick={() => handleAddPreset('Opening Hours', 'Monday - Friday: 9 AM - 6 PM\nSaturday: 10 AM - 4 PM\nSunday: Closed')}
-                            className="inline-flex items-center space-x-1 px-2.5 py-1.5 text-xs border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 transition font-medium text-slate-600 dark:text-slate-400"
+                            className="inline-flex items-center space-x-1 px-2.5 py-1.5 text-xs border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition font-medium text-zinc-600 dark:text-zinc-400"
                           >
                             <Clock className="h-3 w-3" />
                             <span>Opening Hours</span>
@@ -1082,7 +1082,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                           <button
                             type="button"
                             onClick={() => handleAddPreset('Refund Policy', 'We offer full refunds within 14 days of purchase. Items must be unused and in original packaging.')}
-                            className="inline-flex items-center space-x-1 px-2.5 py-1.5 text-xs border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 transition font-medium text-slate-600 dark:text-slate-400"
+                            className="inline-flex items-center space-x-1 px-2.5 py-1.5 text-xs border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition font-medium text-zinc-600 dark:text-zinc-400"
                           >
                             <Undo className="h-3.5 w-3.5" />
                             <span>Refund Policy</span>
@@ -1090,7 +1090,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                           <button
                             type="button"
                             onClick={() => handleAddPreset('Terms & Conditions', 'By ordering, customers agree to our service terms. Deliveries take 3-5 business days.')}
-                            className="inline-flex items-center space-x-1 px-2.5 py-1.5 text-xs border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 transition font-medium text-slate-600 dark:text-slate-400"
+                            className="inline-flex items-center space-x-1 px-2.5 py-1.5 text-xs border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition font-medium text-zinc-600 dark:text-zinc-400"
                           >
                             <FileText className="h-3 w-3" />
                             <span>Terms</span>
@@ -1101,7 +1101,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
 
                     <form onSubmit={handleSaveCompanyBlock} className="space-y-4">
                       <div>
-                        <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Block Title</label>
+                        <label className="block text-xs font-bold text-zinc-400 uppercase mb-1">Block Title</label>
                         <input
                           type="text"
                           ref={companyTitleInputRef}
@@ -1109,19 +1109,19 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                           placeholder="e.g. Delivery Guidelines, Holiday Schedule"
                           value={companyBlockTitle}
                           onChange={(e) => setCompanyBlockTitle(e.target.value)}
-                          className="w-full bg-slate-50 dark:bg-slate-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                          className="w-full bg-zinc-50 dark:bg-zinc-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Block Content</label>
+                        <label className="block text-xs font-bold text-zinc-400 uppercase mb-1">Block Content</label>
                         <textarea
                           rows={6}
                           required
                           placeholder="Input details about your company here. You can paste bullet lists, address info, or support guidelines."
                           value={companyBlockContent}
                           onChange={(e) => setCompanyBlockContent(e.target.value)}
-                          className="w-full bg-slate-50 dark:bg-slate-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                          className="w-full bg-zinc-50 dark:bg-zinc-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                         />
                       </div>
 
@@ -1134,7 +1134,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                               setCompanyBlockTitle('')
                               setCompanyBlockContent('')
                             }}
-                            className="flex-1 py-2.5 border rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-900 transition text-sm"
+                            className="flex-1 py-2.5 border rounded-xl font-bold hover:bg-zinc-50 dark:hover:bg-zinc-900 transition text-sm"
                           >
                             Cancel
                           </button>
@@ -1155,16 +1155,16 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                 <div className="lg:col-span-7 space-y-4">
                   <h3 className="text-xl font-bold flex items-center space-x-2">
                     <span>Company Information Blocks</span>
-                    <span className="text-xs px-2.5 py-0.5 rounded-full border bg-slate-100 dark:bg-slate-800 text-slate-500 font-semibold">
+                    <span className="text-xs px-2.5 py-0.5 rounded-full border bg-zinc-100 dark:bg-zinc-800 text-zinc-500 font-semibold">
                       {companyInfo.length} total
                     </span>
                   </h3>
 
                   {companyInfo.length === 0 ? (
-                    <div className="text-center py-16 bg-white dark:bg-slate-950 rounded-3xl border p-8 shadow-sm">
-                      <Info className="h-8 w-8 text-slate-300 mx-auto mb-3" />
-                      <h4 className="font-bold text-slate-700 dark:text-slate-300">No Information Blocks Added</h4>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs mx-auto">
+                    <div className="text-center py-16 bg-white dark:bg-zinc-950 rounded-3xl border p-8 shadow-sm">
+                      <Info className="h-8 w-8 text-zinc-305 mx-auto mb-3" />
+                      <h4 className="font-bold text-zinc-700 dark:text-zinc-305">No Information Blocks Added</h4>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-xs mx-auto">
                         Add text blocks on the left to write about your refund policies, business hours, contacts, etc.
                       </p>
                     </div>
@@ -1173,13 +1173,13 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                       {companyInfo.map(block => (
                         <div 
                           key={block.id}
-                          className="bg-white dark:bg-slate-950 border rounded-3xl p-5 shadow-sm flex items-start justify-between gap-4"
+                          className="bg-white dark:bg-zinc-950 border rounded-3xl p-5 shadow-sm flex items-start justify-between gap-4"
                         >
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-lg font-bold text-slate-900 dark:text-white truncate">
+                            <h4 className="text-lg font-bold text-zinc-900 dark:text-white truncate">
                               {block.title}
                             </h4>
-                            <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 whitespace-pre-wrap leading-relaxed">
+                            <p className="text-sm text-zinc-600 dark:text-zinc-305 mt-2 whitespace-pre-wrap leading-relaxed">
                               {block.content}
                             </p>
                           </div>
@@ -1187,13 +1187,13 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                           <div className="flex items-center space-x-1 shrink-0">
                             <button
                               onClick={() => handleEditCompanyBlock(block)}
-                              className="p-2 text-slate-500 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg border transition"
+                              className="p-2 text-zinc-500 hover:text-primary hover:bg-zinc-50 dark:hover:bg-zinc-900 rounded-lg border transition"
                             >
                               <Edit3 className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => handleDeleteCompanyBlock(block.id)}
-                              className="p-2 text-slate-500 hover:text-red-500 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg border transition"
+                              className="p-2 text-zinc-500 hover:text-red-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 rounded-lg border transition"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -1214,11 +1214,11 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
       {/* 1. Category Modal (Create / Rename) */}
       {isCategoryModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-950 border max-w-md w-full rounded-3xl p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white dark:bg-zinc-950 border max-w-md w-full rounded-3xl p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
             <h3 className="text-xl font-bold mb-2">
               {editingCategoryId ? 'Rename Category' : 'Create Category'}
             </h3>
-            <p className="text-xs text-slate-400 mb-4">
+            <p className="text-xs text-zinc-400 mb-4">
               {categoryModalParentId 
                 ? 'Create a nested subcategory under the parent category.' 
                 : 'Create a main category at the root level of your catalog.'}
@@ -1226,7 +1226,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
 
             <form onSubmit={handleSaveCategory} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Category Name</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase mb-1">Category Name</label>
                 <input
                   type="text"
                   ref={categoryInputRef}
@@ -1234,7 +1234,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                   placeholder="e.g. Hot Drinks, Desserts, Laptops"
                   value={categoryModalName}
                   onChange={(e) => setCategoryModalName(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="w-full bg-zinc-50 dark:bg-zinc-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
 
@@ -1242,7 +1242,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                 <button
                   type="button"
                   onClick={() => setIsCategoryModalOpen(false)}
-                  className="flex-1 py-2.5 border rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-900 transition text-sm"
+                  className="flex-1 py-2.5 border rounded-xl font-bold hover:bg-zinc-50 dark:hover:bg-zinc-900 transition text-sm"
                 >
                   Cancel
                 </button>
@@ -1261,18 +1261,18 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
       {/* 2. Item Modal (Create / Edit product/service) */}
       {isItemModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-slate-950 border max-w-lg w-full rounded-3xl p-6 md:p-8 shadow-2xl relative my-8 animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white dark:bg-zinc-950 border max-w-lg w-full rounded-3xl p-6 md:p-8 shadow-2xl relative my-8 animate-in fade-in zoom-in-95 duration-150">
             <h3 className="text-xl font-bold mb-2">
               {editingItemId ? 'Edit Product or Service' : 'Add Product or Service'}
             </h3>
-            <p className="text-xs text-slate-400 mb-6">
+            <p className="text-xs text-zinc-400 mb-6">
               Enter the parameters of the goods or service for the AI model to know.
             </p>
 
             <form onSubmit={handleSaveItem} className="space-y-4">
               {/* Name */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Name</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase mb-1">Name</label>
                 <input
                   type="text"
                   ref={itemInputRef}
@@ -1280,23 +1280,23 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                   placeholder="e.g. Lavender Macchiato, Hair Trim"
                   value={itemName}
                   onChange={(e) => setItemName(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="w-full bg-zinc-50 dark:bg-zinc-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
 
               {/* Image Upload */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Upload Product Image</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase mb-1">Upload Product Image</label>
                 <div className="flex items-center gap-4 mt-2">
-                  <div className="w-16 h-16 rounded-xl border bg-slate-50 dark:bg-slate-900 flex items-center justify-center overflow-hidden shrink-0">
+                  <div className="w-16 h-16 rounded-xl border bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center overflow-hidden shrink-0">
                     {itemImage ? (
                       <img src={itemImage} alt="Product" className="w-full h-full object-cover" />
                     ) : (
-                      <ImageIcon className="h-6 w-6 text-slate-300" />
+                      <ImageIcon className="h-6 w-6 text-zinc-305" />
                     )}
                   </div>
                   
-                  <label className="relative cursor-pointer inline-flex items-center space-x-1.5 px-3 py-2 border rounded-xl text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                  <label className="relative cursor-pointer inline-flex items-center space-x-1.5 px-3 py-2 border rounded-xl text-xs font-semibold hover:bg-zinc-50 dark:hover:bg-zinc-900 transition">
                     {itemImageUploading ? (
                       <RefreshCw className="h-3.5 w-3.5 animate-spin text-primary" />
                     ) : (
@@ -1317,7 +1317,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
               {/* Price & Discount */}
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Price</label>
+                  <label className="block text-xs font-bold text-zinc-400 uppercase mb-1">Price</label>
                   <input
                     type="number"
                     step="0.01"
@@ -1325,16 +1325,16 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                     required
                     value={itemPrice}
                     onChange={(e) => setItemPrice(Number(e.target.value))}
-                    className="w-full bg-slate-50 dark:bg-slate-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full bg-zinc-50 dark:bg-zinc-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Discount Type</label>
+                  <label className="block text-xs font-bold text-zinc-400 uppercase mb-1">Discount Type</label>
                   <select
                     value={itemDiscountType}
                     onChange={(e) => setItemDiscountType(e.target.value as any)}
-                    className="w-full bg-slate-50 dark:bg-slate-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full bg-zinc-50 dark:bg-zinc-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                   >
                     <option value="none">No Discount</option>
                     <option value="percent">Percentage (%)</option>
@@ -1343,27 +1343,27 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Discount Value</label>
+                  <label className="block text-xs font-bold text-zinc-400 uppercase mb-1">Discount Value</label>
                   <input
                     type="number"
                     min="0"
                     disabled={itemDiscountType === 'none'}
                     value={itemDiscountValue}
                     onChange={(e) => setItemDiscountValue(Number(e.target.value))}
-                    className="w-full bg-slate-50 dark:bg-slate-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-zinc-50 dark:bg-zinc-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
 
               {/* Description */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Description</label>
+                <label className="block text-xs font-bold text-zinc-400 uppercase mb-1">Description</label>
                 <textarea
                   rows={4}
                   placeholder="Detailed description of the goods or service."
                   value={itemDescription}
                   onChange={(e) => setItemDescription(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="w-full bg-zinc-50 dark:bg-zinc-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
 
@@ -1372,7 +1372,7 @@ export default function VisualProfileBuilder({ params }: { params: { aiId: strin
                 <button
                   type="button"
                   onClick={() => setIsItemModalOpen(false)}
-                  className="flex-1 py-2.5 border rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-900 transition text-sm"
+                  className="flex-1 py-2.5 border rounded-xl font-bold hover:bg-zinc-50 dark:hover:bg-zinc-900 transition text-sm"
                 >
                   Cancel
                 </button>

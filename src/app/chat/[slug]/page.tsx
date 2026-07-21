@@ -364,9 +364,9 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
       const alt = match[1]
       const src = match[2]
       parts.push(
-        <div key={`img-${index}`} className="my-3 max-w-sm rounded-2xl overflow-hidden border shadow-sm dark:border-slate-800">
+        <div key={`img-${index}`} className="my-3 max-w-sm rounded-2xl overflow-hidden border shadow-sm dark:border-zinc-800">
           <img src={src} alt={alt} className="w-full h-48 object-cover" />
-          <div className="px-3 py-2 text-[10px] opacity-75 border-t dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 italic text-center font-bold tracking-wide uppercase">
+          <div className="px-3 py-2 text-[10px] opacity-75 border-t dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 italic text-center font-bold tracking-wide uppercase">
             {alt || 'Product Details'}
           </div>
         </div>
@@ -384,7 +384,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
         <RefreshCw className="h-8 w-8 text-blue-500 animate-spin" />
       </div>
     )
@@ -392,10 +392,10 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
 
   if (!ai) {
     return (
-      <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-6 text-center">
+      <div className="min-h-screen bg-zinc-900 text-white flex flex-col items-center justify-center p-6 text-center">
         <AlertCircle className="h-16 w-16 text-red-500 mb-4" />
         <h1 className="text-3xl font-black">Assistant Not Found</h1>
-        <p className="text-slate-400 mt-2 max-w-sm">
+        <p className="text-zinc-400 mt-2 max-w-sm">
           The link you followed may be incorrect, or the owner may have removed this chatbot.
         </p>
       </div>
@@ -440,17 +440,17 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                   <Plus className="h-4 w-4 text-blue-500" />
                   <span>New Chat</span>
                 </span>
-                <span className="text-[9px] px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-slate-500 font-mono">⌘N</span>
+                <span className="text-[9px] px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-zinc-500 font-mono">⌘N</span>
               </button>
             </div>
 
             {/* Conversation Log history */}
             <div className="flex-1 overflow-y-auto px-2 space-y-0.5 py-1">
-              <span className="block text-[9px] font-bold text-slate-500 uppercase tracking-widest pl-3 mb-2">
+              <span className="block text-[9px] font-bold text-zinc-500 uppercase tracking-widest pl-3 mb-2">
                 Today
               </span>
               {sessionsList.length === 0 ? (
-                <div className="text-center py-8 text-xs text-slate-600 font-medium">
+                <div className="text-center py-8 text-xs text-zinc-600 font-medium">
                   No chat history
                 </div>
               ) : (
@@ -461,7 +461,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                     className={`w-full text-left px-3 py-2.5 rounded-lg text-xs font-bold transition truncate flex items-center justify-between ${
                       sessionId === s.visitor_session_id
                         ? 'bg-[#212121] text-white'
-                        : 'hover:bg-[#212121]/50 text-slate-400 hover:text-white'
+                        : 'hover:bg-[#212121]/50 text-zinc-400 hover:text-white'
                     }`}
                   >
                     <span className="flex items-center space-x-2.5 min-w-0 pr-2">
@@ -479,18 +479,18 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
             <div className="p-3 border-t border-white/5 bg-black/10 flex flex-col gap-2">
               <div className="flex items-center justify-between min-w-0 px-2 py-1">
                 <div className="min-w-0 flex-1 flex items-center space-x-2.5">
-                  <div className="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center font-bold text-xs shrink-0 border border-slate-700">
+                  <div className="w-7 h-7 rounded-full bg-zinc-800 flex items-center justify-center font-bold text-xs shrink-0 border border-zinc-700">
                     <User className="h-3.5 w-3.5 text-blue-400" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <span className="block text-[11px] font-bold truncate text-slate-300">
+                    <span className="block text-[11px] font-bold truncate text-zinc-305">
                       {visitorEmail}
                     </span>
                   </div>
                 </div>
                 <button
                   onClick={handleSignOut}
-                  className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-white/5 rounded-lg transition shrink-0"
+                  className="p-1.5 text-zinc-500 hover:text-red-400 hover:bg-white/5 rounded-lg transition shrink-0"
                   title="Sign Out"
                 >
                   <LogOut className="h-4.5 w-4.5" />
@@ -509,7 +509,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
             {visitorEmail && (
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="md:hidden p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 mr-1"
+                className="md:hidden p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg text-zinc-500 mr-1"
               >
                 <Menu className="h-5 w-5" />
               </button>
@@ -517,7 +517,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
             
             {/* AI Custom Logo */}
             <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border dark:border-slate-800 shadow-sm"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border dark:border-zinc-800 shadow-sm"
               style={{ backgroundColor: theme.primaryColor }}
             >
               {ai.ai_logo_url ? (
@@ -533,7 +533,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
               <h1 className="font-extrabold text-sm md:text-base leading-tight truncate" style={{ color: theme.textColorBot }}>
                 {ai.ai_name || `${ai.name} Assistant`}
               </h1>
-              <span className="text-[10px] opacity-60 flex items-center gap-1.5 mt-0.5 truncate text-slate-500">
+              <span className="text-[10px] opacity-60 flex items-center gap-1.5 mt-0.5 truncate text-zinc-500">
                 <span className="font-semibold text-primary">Assistant for {ai.name}</span>
                 {ai.location && (
                   <>
@@ -547,7 +547,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
           </div>
 
           <div className="flex items-center space-x-2">
-            <span className="text-[9px] px-2.5 py-1 rounded bg-slate-500/10 border dark:border-slate-800 uppercase tracking-widest font-extrabold text-slate-500">
+            <span className="text-[9px] px-2.5 py-1 rounded bg-zinc-500/10 border dark:border-zinc-800 uppercase tracking-widest font-extrabold text-zinc-500">
               Active Agent
             </span>
           </div>
@@ -555,11 +555,11 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
 
         {/* 3. Authentication Forms */}
         {!visitorEmail ? (
-          <div className="flex-1 flex items-center justify-center p-6 overflow-y-auto bg-slate-50 dark:bg-[#1e1e1f]">
-            <div className="max-w-md w-full bg-white dark:bg-[#2b2c2f] border dark:border-slate-800/80 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6">
+          <div className="flex-1 flex items-center justify-center p-6 overflow-y-auto bg-zinc-50 dark:bg-[#1e1e1f]">
+            <div className="max-w-md w-full bg-white dark:bg-[#2b2c2f] border dark:border-zinc-800/80 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6">
               <div className="text-center space-y-4">
                 <div 
-                  className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-white overflow-hidden shadow-md border dark:border-slate-800"
+                  className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-white overflow-hidden shadow-md border dark:border-zinc-800"
                   style={{ backgroundColor: theme.primaryColor }}
                 >
                   {ai.ai_logo_url ? (
@@ -574,20 +574,20 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                   <h2 className="text-2xl font-black tracking-tight">
                     Chat with {ai.ai_name || `${ai.name} Assistant`}
                   </h2>
-                  <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+                  <p className="text-xs text-zinc-400 mt-1 max-w-xs mx-auto">
                     Access official customer service, track your conversation history, and verify orders.
                   </p>
                 </div>
               </div>
 
               {/* Tabs */}
-              <div className="flex bg-slate-100 dark:bg-[#1e1e1f] p-1 rounded-2xl">
+              <div className="flex bg-zinc-100 dark:bg-[#1e1e1f] p-1 rounded-2xl">
                 <button
                   onClick={() => setAuthMode('signin')}
                   className={`flex-1 py-2 text-xs font-bold rounded-xl transition ${
                     authMode === 'signin' 
                       ? 'bg-white dark:bg-[#2b2c2f] shadow-sm' 
-                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                      : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
                   }`}
                 >
                   Sign In
@@ -597,7 +597,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                   className={`flex-1 py-2 text-xs font-bold rounded-xl transition ${
                     authMode === 'signup' 
                       ? 'bg-white dark:bg-[#2b2c2f] shadow-sm' 
-                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                      : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
                   }`}
                 >
                   Sign Up
@@ -614,9 +614,9 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
               {/* Form fields */}
               <form onSubmit={authMode === 'signin' ? handleSignIn : handleSignUp} className="space-y-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Email Address</label>
-                  <div className="flex items-center bg-slate-50 dark:bg-[#1e1e1f] border dark:border-slate-800 rounded-2xl px-3.5 focus-within:ring-1 focus-within:ring-primary transition">
-                    <Mail className="h-4.5 w-4.5 text-slate-400 shrink-0 mr-2" />
+                  <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Email Address</label>
+                  <div className="flex items-center bg-zinc-50 dark:bg-[#1e1e1f] border dark:border-zinc-800 rounded-2xl px-3.5 focus-within:ring-1 focus-within:ring-primary transition">
+                    <Mail className="h-4.5 w-4.5 text-zinc-400 shrink-0 mr-2" />
                     <input
                       type="email"
                       ref={emailInputRef}
@@ -630,9 +630,9 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Password</label>
-                  <div className="flex items-center bg-slate-50 dark:bg-[#1e1e1f] border dark:border-slate-800 rounded-2xl px-3.5 focus-within:ring-1 focus-within:ring-primary transition">
-                    <Lock className="h-4.5 w-4.5 text-slate-400 shrink-0 mr-2" />
+                  <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Password</label>
+                  <div className="flex items-center bg-zinc-50 dark:bg-[#1e1e1f] border dark:border-zinc-800 rounded-2xl px-3.5 focus-within:ring-1 focus-within:ring-primary transition">
+                    <Lock className="h-4.5 w-4.5 text-zinc-400 shrink-0 mr-2" />
                     <input
                       type="password"
                       required
@@ -660,16 +660,16 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
               </form>
 
               <div className="relative flex py-1 items-center">
-                <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
-                <span className="flex-shrink mx-4 text-[9px] text-slate-400 font-bold uppercase tracking-wider">or</span>
-                <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+                <div className="flex-grow border-t border-zinc-200 dark:border-zinc-800"></div>
+                <span className="flex-shrink mx-4 text-[9px] text-zinc-400 font-bold uppercase tracking-wider">or</span>
+                <div className="flex-grow border-t border-zinc-200 dark:border-zinc-800"></div>
               </div>
 
               {/* Google OAuth Login */}
               <button
                 type="button"
                 onClick={handleGoogleSignIn}
-                className="w-full py-3.5 border dark:border-slate-800 rounded-2xl font-bold hover:bg-slate-50 dark:hover:bg-slate-[#1e1e1f] flex items-center justify-center space-x-2.5 transition text-sm text-slate-700 dark:text-slate-200 shadow-sm"
+                className="w-full py-3.5 border dark:border-zinc-800 rounded-2xl font-bold hover:bg-zinc-50 dark:hover:bg-slate-[#1e1e1f] flex items-center justify-center space-x-2.5 transition text-sm text-zinc-700 dark:text-zinc-200 shadow-sm"
               >
                 <Compass className="h-4.5 w-4.5 text-primary" />
                 <span>Sign In with Google</span>
@@ -762,7 +762,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                 {messages.length > 0 && (
                   <div className="flex justify-start items-start gap-4 animate-in fade-in">
                     <div 
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border dark:border-slate-800 shadow-sm"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border dark:border-zinc-800 shadow-sm"
                       style={{ backgroundColor: theme.primaryColor }}
                     >
                       {ai.ai_logo_url ? (
@@ -772,7 +772,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
+                      <span className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1.5">
                         {ai.ai_name || `${ai.name} Assistant`}
                       </span>
                     <div className="text-[15px] leading-relaxed select-text font-medium" style={{ color: theme.textColorBot }}>
@@ -793,7 +793,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                     {/* Bot Avatar Left */}
                     {m.role === 'model' && (
                       <div 
-                        className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border dark:border-slate-800 shadow-sm"
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border dark:border-zinc-800 shadow-sm"
                         style={{ backgroundColor: theme.primaryColor }}
                       >
                         {ai.ai_logo_url ? (
@@ -805,7 +805,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                     )}
 
                     <div className={`min-w-0 ${m.role === 'user' ? 'flex flex-col items-end' : 'flex-1'}`}>
-                      <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
+                      <span className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1.5">
                         {m.role === 'user' ? 'You' : (ai.ai_name || `${ai.name} Assistant`)}
                       </span>
                       
@@ -832,7 +832,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                 {isTyping && (
                   <div className="flex items-start gap-4">
                     <div 
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border dark:border-slate-800 shadow-sm"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden shrink-0 border dark:border-zinc-800 shadow-sm"
                       style={{ backgroundColor: theme.primaryColor }}
                     >
                       {ai.ai_logo_url ? (
@@ -842,11 +842,11 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                       )}
                     </div>
                     <div className="flex-1">
-                      <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
+                      <span className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1.5">
                         {ai.ai_name || `${ai.name} Assistant`}
                       </span>
                       <div
-                        className="rounded-full px-4.5 py-2.5 bg-slate-100 dark:bg-slate-900 border dark:border-slate-800 text-slate-500 w-fit text-xs flex items-center space-x-1.5"
+                        className="rounded-full px-4.5 py-2.5 bg-zinc-100 dark:bg-zinc-900 border dark:border-zinc-800 text-zinc-500 w-fit text-xs flex items-center space-x-1.5"
                       >
                         <span className="animate-bounce font-extrabold">.</span>
                         <span className="animate-bounce delay-75 font-extrabold">.</span>
@@ -894,7 +894,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                   <Send className="h-4 w-4" />
                 </button>
               </form>
-              <div className="text-[10px] text-center mt-3 text-slate-400 font-medium">
+              <div className="text-[10px] text-center mt-3 text-zinc-400 font-medium">
                 {ai.ai_name || ai.name} can make mistakes. Verify important business details.
               </div>
             </div>

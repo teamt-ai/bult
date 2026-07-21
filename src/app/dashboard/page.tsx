@@ -221,13 +221,13 @@ export default function Dashboard() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {!user ? (
           /* Auth Form Card */
-          <div className="max-w-md mx-auto mt-12 bg-white dark:bg-slate-950 rounded-3xl border shadow-2xl overflow-hidden card-gradient">
+          <div className="max-w-md mx-auto mt-12 bg-white dark:bg-zinc-950 rounded-3xl border shadow-2xl overflow-hidden card-gradient">
             <div className="p-8">
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-black tracking-tight">
                   Welcome to Bul<span className="gradient-text">t</span>
                 </h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">
                   {isSignUp ? 'Create your business owner account' : 'Sign in to manage your custom AIs'}
                 </p>
               </div>
@@ -247,26 +247,26 @@ export default function Dashboard() {
 
               <form onSubmit={handleAuth} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Email Address</label>
+                  <label className="block text-xs font-bold text-zinc-400 uppercase mb-1">Email Address</label>
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@company.com"
-                    className="w-full bg-slate-50 dark:bg-slate-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full bg-zinc-50 dark:bg-zinc-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Password</label>
+                  <label className="block text-xs font-bold text-zinc-400 uppercase mb-1">Password</label>
                   <input
                     type="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-slate-50 dark:bg-slate-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full bg-zinc-50 dark:bg-zinc-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
 
@@ -296,7 +296,7 @@ export default function Dashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h1 className="text-3xl font-extrabold">My Business Assistants</h1>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
                   Create, train, and configure custom AIs for your business.
                 </p>
               </div>
@@ -313,9 +313,9 @@ export default function Dashboard() {
             {/* Create Dialog Overlay */}
             {isCreating && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                <div className="bg-white dark:bg-slate-950 border max-w-lg w-full rounded-3xl p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+                <div className="bg-white dark:bg-zinc-950 border max-w-lg w-full rounded-3xl p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
                   <h3 className="text-2xl font-bold mb-2">Create New Assistant</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
                     Name your assistant and pick a unique web link for customers.
                   </p>
 
@@ -328,7 +328,7 @@ export default function Dashboard() {
 
                   <form onSubmit={handleCreateAi} className="space-y-4">
                     <div>
-                      <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Business Name</label>
+                      <label className="block text-xs font-bold text-zinc-400 uppercase mb-1">Business Name</label>
                       <input
                         type="text"
                         required
@@ -341,21 +341,21 @@ export default function Dashboard() {
                             setNewAiSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, '-').replace(/-+/g, '-'))
                           }
                         }}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                        className="w-full bg-zinc-50 dark:bg-zinc-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Business Logo</label>
+                      <label className="block text-xs font-bold text-zinc-400 uppercase mb-1">Business Logo</label>
                       <div className="flex items-center gap-4 mt-1">
-                        <div className="w-12 h-12 rounded-xl border bg-slate-50 dark:bg-slate-900 flex items-center justify-center overflow-hidden shrink-0">
+                        <div className="w-12 h-12 rounded-xl border bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center overflow-hidden shrink-0">
                           {newAiLogoUrl ? (
                             <img src={newAiLogoUrl} alt="Logo" className="w-full h-full object-cover" />
                           ) : (
-                            <Building className="h-5 w-5 text-slate-300" />
+                            <Building className="h-5 w-5 text-zinc-305" />
                           )}
                         </div>
-                        <label className="relative cursor-pointer inline-flex items-center space-x-1.5 px-3 py-2 border rounded-xl text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                        <label className="relative cursor-pointer inline-flex items-center space-x-1.5 px-3 py-2 border rounded-xl text-xs font-semibold hover:bg-zinc-50 dark:hover:bg-zinc-900 transition">
                           {logoUploading ? (
                             <RefreshCw className="h-3 w-3 animate-spin text-primary" />
                           ) : (
@@ -368,28 +368,28 @@ export default function Dashboard() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-400 uppercase mb-1">AI Assistant Name</label>
+                      <label className="block text-xs font-bold text-zinc-400 uppercase mb-1">AI Assistant Name</label>
                       <input
                         type="text"
                         required
                         placeholder="e.g. Barista Bot"
                         value={newAiBotName}
                         onChange={(e) => setNewAiBotName(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                        className="w-full bg-zinc-50 dark:bg-zinc-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-400 uppercase mb-1">AI Assistant Logo</label>
+                      <label className="block text-xs font-bold text-zinc-400 uppercase mb-1">AI Assistant Logo</label>
                       <div className="flex items-center gap-4 mt-1">
-                        <div className="w-12 h-12 rounded-xl border bg-slate-50 dark:bg-slate-900 flex items-center justify-center overflow-hidden shrink-0">
+                        <div className="w-12 h-12 rounded-xl border bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center overflow-hidden shrink-0">
                           {newAiBotLogoUrl ? (
                             <img src={newAiBotLogoUrl} alt="AI Logo" className="w-full h-full object-cover" />
                           ) : (
-                            <Bot className="h-5 w-5 text-slate-300" />
+                            <Bot className="h-5 w-5 text-zinc-305" />
                           )}
                         </div>
-                        <label className="relative cursor-pointer inline-flex items-center space-x-1.5 px-3 py-2 border rounded-xl text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                        <label className="relative cursor-pointer inline-flex items-center space-x-1.5 px-3 py-2 border rounded-xl text-xs font-semibold hover:bg-zinc-50 dark:hover:bg-zinc-900 transition">
                           {botLogoUploading ? (
                             <RefreshCw className="h-3 w-3 animate-spin text-primary" />
                           ) : (
@@ -402,9 +402,9 @@ export default function Dashboard() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Location / Address</label>
-                      <div className="flex items-center bg-slate-50 dark:bg-slate-900 border rounded-xl px-3 focus-within:ring-1 focus-within:ring-primary">
-                        <MapPin className="h-4 w-4 text-slate-400 shrink-0 mr-2" />
+                      <label className="block text-xs font-bold text-zinc-400 uppercase mb-1">Location / Address</label>
+                      <div className="flex items-center bg-zinc-50 dark:bg-zinc-900 border rounded-xl px-3 focus-within:ring-1 focus-within:ring-primary">
+                        <MapPin className="h-4 w-4 text-zinc-400 shrink-0 mr-2" />
                         <input
                           type="text"
                           placeholder="e.g. 12 Bridge Street, London, or Online Only"
@@ -416,8 +416,8 @@ export default function Dashboard() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-400 uppercase mb-1">URL Slug</label>
-                      <div className="flex items-center bg-slate-50 dark:bg-slate-900 border rounded-xl overflow-hidden focus-within:ring-1 focus-within:ring-primary">
+                      <label className="block text-xs font-bold text-zinc-400 uppercase mb-1">URL Slug</label>
+                      <div className="flex items-center bg-zinc-50 dark:bg-zinc-900 border rounded-xl overflow-hidden focus-within:ring-1 focus-within:ring-primary">
                         <span className="pl-3 py-2.5 text-sm opacity-50 select-none">bult.ai/chat/</span>
                         <input
                           type="text"
@@ -431,13 +431,13 @@ export default function Dashboard() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Short Description</label>
+                      <label className="block text-xs font-bold text-zinc-400 uppercase mb-1">Short Description</label>
                       <textarea
                         rows={3}
                         placeholder="What does your business do? (Helpful context for the AI)"
                         value={newAiDesc}
                         onChange={(e) => setNewAiDesc(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                        className="w-full bg-zinc-50 dark:bg-zinc-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                       />
                     </div>
 
@@ -445,7 +445,7 @@ export default function Dashboard() {
                       <button
                         type="button"
                         onClick={() => setIsCreating(false)}
-                        className="flex-1 py-3 border rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-900 transition text-sm"
+                        className="flex-1 py-3 border rounded-xl font-bold hover:bg-zinc-50 dark:hover:bg-zinc-900 transition text-sm"
                       >
                         Cancel
                       </button>
@@ -460,12 +460,12 @@ export default function Dashboard() {
 
             {/* List AIs */}
             {ais.length === 0 ? (
-              <div className="text-center py-20 bg-white dark:bg-slate-950 rounded-3xl border p-8 max-w-2xl mx-auto shadow-sm">
+              <div className="text-center py-20 bg-white dark:bg-zinc-950 rounded-3xl border p-8 max-w-2xl mx-auto shadow-sm">
                 <div className="p-4 bg-blue-500/10 text-primary w-fit rounded-full mx-auto mb-4">
                   <Bot className="h-8 w-8" />
                 </div>
                 <h3 className="text-xl font-bold">No Assistants Created Yet</h3>
-                <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm max-w-sm mx-auto">
+                <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm max-w-sm mx-auto">
                   Create your first business assistant to start feeding business information.
                 </p>
                 <button
@@ -481,7 +481,7 @@ export default function Dashboard() {
                 {ais.map((ai) => (
                   <div
                     key={ai.id}
-                    className="bg-white dark:bg-slate-950 border rounded-3xl p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition"
+                    className="bg-white dark:bg-zinc-950 border rounded-3xl p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-4">
@@ -499,8 +499,8 @@ export default function Dashboard() {
                       </div>
 
                       <h3 className="text-xl font-bold tracking-tight">{ai.name}</h3>
-                      <p className="text-xs font-mono text-slate-400 mt-1">bult.ai/chat/{ai.slug}</p>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 line-clamp-2">
+                      <p className="text-xs font-mono text-zinc-400 mt-1">bult.ai/chat/{ai.slug}</p>
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2 line-clamp-2">
                         {ai.description || 'No description provided.'}
                       </p>
                     </div>
@@ -508,27 +508,27 @@ export default function Dashboard() {
                     <div className="mt-6 pt-6 border-t grid grid-cols-3 gap-2">
                       <Link
                         href={`/dashboard/${ai.id}/build`}
-                        className="flex flex-col items-center justify-center p-2 rounded-xl border hover:bg-slate-50 dark:hover:bg-slate-900 transition text-center"
+                        className="flex flex-col items-center justify-center p-2 rounded-xl border hover:bg-zinc-50 dark:hover:bg-zinc-900 transition text-center"
                       >
-                        <LayoutGrid className="h-4 w-4 text-slate-500 mb-1" />
-                        <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">Build</span>
+                        <LayoutGrid className="h-4 w-4 text-zinc-500 mb-1" />
+                        <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400">Build</span>
                       </Link>
 
                       <Link
                         href={`/dashboard/${ai.id}/customize`}
-                        className="flex flex-col items-center justify-center p-2 rounded-xl border hover:bg-slate-50 dark:hover:bg-slate-900 transition text-center"
+                        className="flex flex-col items-center justify-center p-2 rounded-xl border hover:bg-zinc-50 dark:hover:bg-zinc-900 transition text-center"
                       >
-                        <Settings className="h-4 w-4 text-slate-500 mb-1" />
-                        <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">Customize</span>
+                        <Settings className="h-4 w-4 text-zinc-500 mb-1" />
+                        <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400">Customize</span>
                       </Link>
 
                       <button
                         onClick={() => handleCopyLink(ai.slug, ai.id)}
                         type="button"
-                        className="flex flex-col items-center justify-center p-2 rounded-xl border hover:bg-slate-50 dark:hover:bg-slate-900 transition text-center focus:outline-none"
+                        className="flex flex-col items-center justify-center p-2 rounded-xl border hover:bg-zinc-50 dark:hover:bg-zinc-900 transition text-center focus:outline-none"
                       >
-                        <Link2 className={`h-4 w-4 mb-1 transition-colors duration-200 ${copiedStates[ai.id] ? 'text-green-500' : 'text-slate-500'}`} />
-                        <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 transition-colors duration-200">
+                        <Link2 className={`h-4 w-4 mb-1 transition-colors duration-200 ${copiedStates[ai.id] ? 'text-green-500' : 'text-zinc-500'}`} />
+                        <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400 transition-colors duration-200">
                           {copiedStates[ai.id] ? 'Copied!' : 'Public Link'}
                         </span>
                       </button>

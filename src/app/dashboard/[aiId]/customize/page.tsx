@@ -194,7 +194,7 @@ export default function CustomizeAi({ params }: { params: { aiId: string } }) {
           <h1 className="text-3xl font-extrabold tracking-tight">
             Customize Chat Design: <span className="gradient-text">{ai?.name}</span>
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
             Pick from 50 professionally engineered layout themes. Individual color pickers are deactivated to preserve a premium visual look.
           </p>
         </div>
@@ -206,7 +206,7 @@ export default function CustomizeAi({ params }: { params: { aiId: string } }) {
           <div className="lg:col-span-6 space-y-6">
             
             {/* Presets Card */}
-            <div className="bg-white dark:bg-slate-950 border rounded-3xl p-6 shadow-md flex flex-col">
+            <div className="bg-white dark:bg-zinc-950 border rounded-3xl p-6 shadow-md flex flex-col">
               <div className="flex items-center justify-between mb-4 border-b pb-3">
                 <h3 className="text-base font-black flex items-center space-x-2">
                   <Palette className="h-4.5 w-4.5 text-blue-500" />
@@ -218,14 +218,14 @@ export default function CustomizeAi({ params }: { params: { aiId: string } }) {
               </div>
 
               {/* Tab Selector */}
-              <div className="flex bg-slate-100 dark:bg-slate-900 p-1.5 rounded-2xl mb-4 shrink-0">
+              <div className="flex bg-zinc-100 dark:bg-zinc-900 p-1.5 rounded-2xl mb-4 shrink-0">
                 <button
                   type="button"
                   onClick={() => setActiveTab('solid')}
                   className={`flex-grow py-2 text-xs font-black rounded-xl transition flex items-center justify-center space-x-1.5 ${
                     activeTab === 'solid' 
-                      ? 'bg-white dark:bg-slate-950 shadow-md text-slate-900 dark:text-white' 
-                      : 'text-slate-500 hover:text-slate-800'
+                      ? 'bg-white dark:bg-zinc-950 shadow-md text-zinc-900 dark:text-white' 
+                      : 'text-zinc-500 hover:text-zinc-800'
                   }`}
                 >
                   <Layers className="h-3.5 w-3.5" />
@@ -236,8 +236,8 @@ export default function CustomizeAi({ params }: { params: { aiId: string } }) {
                   onClick={() => setActiveTab('gradient')}
                   className={`flex-grow py-2 text-xs font-black rounded-xl transition flex items-center justify-center space-x-1.5 ${
                     activeTab === 'gradient' 
-                      ? 'bg-white dark:bg-slate-950 shadow-md text-slate-900 dark:text-white' 
-                      : 'text-slate-500 hover:text-slate-800'
+                      ? 'bg-white dark:bg-zinc-950 shadow-md text-zinc-900 dark:text-white' 
+                      : 'text-zinc-500 hover:text-zinc-800'
                   }`}
                 >
                   <Sparkle className="h-3.5 w-3.5" />
@@ -257,11 +257,11 @@ export default function CustomizeAi({ params }: { params: { aiId: string } }) {
                       className={`p-3.5 rounded-2xl border text-left flex flex-col justify-between transition-all duration-200 ${
                         isSelected 
                           ? 'border-blue-500 bg-blue-500/5 ring-1 ring-blue-500' 
-                          : 'border-slate-200/60 dark:border-slate-800 hover:border-slate-400 bg-slate-50/50 dark:bg-slate-900/30'
+                          : 'border-zinc-200/60 dark:border-zinc-800 hover:border-zinc-400 bg-zinc-50/50 dark:bg-zinc-900/30'
                       }`}
                     >
                       <div className="flex items-center justify-between w-full mb-3.5 min-w-0">
-                        <span className="text-xs font-extrabold truncate pr-1 text-slate-800 dark:text-slate-200">
+                        <span className="text-xs font-extrabold truncate pr-1 text-zinc-800 dark:text-zinc-200">
                           {p.name}
                         </span>
                         <div
@@ -272,7 +272,7 @@ export default function CustomizeAi({ params }: { params: { aiId: string } }) {
 
                       {/* Visual theme miniature mockup */}
                       <div 
-                        className="w-full h-16 rounded-xl border dark:border-slate-800 p-2.5 flex flex-col justify-between"
+                        className="w-full h-16 rounded-xl border dark:border-zinc-800 p-2.5 flex flex-col justify-between"
                         style={{ background: p.bgColor }}
                       >
                         {/* Bot bubble mini */}
@@ -293,11 +293,11 @@ export default function CustomizeAi({ params }: { params: { aiId: string } }) {
             </div>
 
             {/* Inputs & Settings Form */}
-            <div className="bg-white dark:bg-slate-950 border rounded-3xl p-6 shadow-md">
+            <div className="bg-white dark:bg-zinc-950 border rounded-3xl p-6 shadow-md">
               <form onSubmit={handleSave} className="space-y-6">
                 <div>
                   <h3 className="text-base font-black mb-3">AI Welcome Message</h3>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                  <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">
                     Custom Greeting Text
                   </label>
                   <textarea
@@ -306,7 +306,7 @@ export default function CustomizeAi({ params }: { params: { aiId: string } }) {
                     value={settings.welcomeMessage}
                     onChange={(e) => setSettings({ ...settings, welcomeMessage: e.target.value })}
                     placeholder="Hello! Welcome to our store. How can I help you today?"
-                    className="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-800 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary leading-relaxed"
+                    className="w-full bg-zinc-50 dark:bg-zinc-900 border dark:border-zinc-800 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary leading-relaxed"
                   />
                 </div>
 
@@ -331,13 +331,13 @@ export default function CustomizeAi({ params }: { params: { aiId: string } }) {
 
           {/* Right Panel: Live Mobile Mockup Preview */}
           <div className="lg:col-span-6 sticky top-24">
-            <span className="text-[10px] uppercase tracking-widest font-black text-slate-400 mb-3 block text-center lg:text-left">
+            <span className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-3 block text-center lg:text-left">
               Live Theme Preview (Visitor Window View)
             </span>
 
             {/* Chat preview frame */}
             <div
-              className="w-full max-w-md mx-auto h-[480px] border dark:border-slate-800 shadow-2xl rounded-3xl overflow-hidden flex flex-col transition-all duration-300"
+              className="w-full max-w-md mx-auto h-[480px] border dark:border-zinc-800 shadow-2xl rounded-3xl overflow-hidden flex flex-col transition-all duration-300"
               style={{ background: settings.bgColor }}
             >
               {/* Preview Header */}
@@ -362,7 +362,7 @@ export default function CustomizeAi({ params }: { params: { aiId: string } }) {
                   </div>
                 </div>
                 <div
-                  className="text-[9px] font-black px-2.5 py-1 rounded bg-slate-500/10 border uppercase tracking-wider opacity-60"
+                  className="text-[9px] font-black px-2.5 py-1 rounded bg-zinc-500/10 border uppercase tracking-wider opacity-60"
                   style={{ color: settings.textColorBot, borderColor: `${settings.bubbleBot}33` }}
                 >
                   Demo
@@ -381,7 +381,7 @@ export default function CustomizeAi({ params }: { params: { aiId: string } }) {
                     AI
                   </div>
                   <div className="flex-1 min-w-0">
-                    <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                    <span className="block text-[8px] font-bold text-zinc-400 uppercase tracking-widest mb-1">
                       Bot
                     </span>
                     <div 
@@ -396,7 +396,7 @@ export default function CustomizeAi({ params }: { params: { aiId: string } }) {
                 {/* User Bubble */}
                 <div className="flex justify-end items-start gap-2.5">
                   <div className="flex flex-col items-end">
-                    <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                    <span className="block text-[8px] font-bold text-zinc-400 uppercase tracking-widest mb-1">
                       You
                     </span>
                     <div 
@@ -417,7 +417,7 @@ export default function CustomizeAi({ params }: { params: { aiId: string } }) {
                     AI
                   </div>
                   <div className="flex-1 min-w-0">
-                    <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                    <span className="block text-[8px] font-bold text-zinc-400 uppercase tracking-widest mb-1">
                       Bot
                     </span>
                     <div 
@@ -436,7 +436,7 @@ export default function CustomizeAi({ params }: { params: { aiId: string } }) {
                 style={{ borderTopColor: `${settings.bubbleBot}33` }}
               >
                 <div
-                  className="border rounded-xl flex items-center space-x-2 p-1 bg-white/5 border-slate-200/40"
+                  className="border rounded-xl flex items-center space-x-2 p-1 bg-white/5 border-zinc-200/40"
                   style={{ borderColor: `${settings.bubbleBot}22`, background: `${settings.bubbleBot}07` }}
                 >
                   <input
@@ -456,8 +456,8 @@ export default function CustomizeAi({ params }: { params: { aiId: string } }) {
               </div>
             </div>
 
-            <div className="flex items-center space-x-2 text-[10px] text-slate-400 mt-4 justify-center bg-slate-500/5 p-3 rounded-2xl border max-w-md mx-auto">
-              <ShieldAlert className="h-4 w-4 shrink-0 text-slate-500" />
+            <div className="flex items-center space-x-2 text-[10px] text-zinc-400 mt-4 justify-center bg-zinc-500/5 p-3 rounded-2xl border max-w-md mx-auto">
+              <ShieldAlert className="h-4 w-4 shrink-0 text-zinc-500" />
               <span>Color safety guards are active. Presets comply with premium business guidelines.</span>
             </div>
           </div>
