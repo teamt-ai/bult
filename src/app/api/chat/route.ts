@@ -2,41 +2,37 @@ import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { supabase } from '@/lib/supabase'
 
-// Initialize Google Gen AI
-const apiKey = process.env.GEMINI_API_KEY || ''
-// Note: GoogleGenAI SDK in newer versions is imported as GoogleGenAI, or we can use:
-// import { GoogleGenAI } from '@google/generative-ai' -> Wait, let's check correct SDK usage.
-// Standard Google AI Studio SDK:
-// import { GoogleGenAI } from '@google/generative-ai' is wrong.
-// The correct import in the standard Google SDK is:
-// import { GoogleGenAI } from '@google/generative-ai'? No, it is:
-// import { GoogleGenAI } from '@google/generative-ai' -> actually:
-// import { GoogleGenAI } from '@google/generative-ai'
-// Wait, the SDK is:
-// import { GoogleGenAI } from '@google/generative-ai'
-// Let's verify the exact usage of `@google/generative-ai`.
-// Standard syntax:
-// const { GoogleGenAI } = require('@google/generative-ai')
-// or
-// import { GoogleGenAI } from '@google/generative-ai'
-// Wait! The constructor in `@google/generative-ai` is `GoogleGenAI` in version 0.21.0:
-// const ai = new GoogleGenAI({ apiKey })
-// const model = ai.getGenerativeModel({ model: 'gemini-3.5-flash' })
-// Let's double check this. Yes!
-// Let's write the route code using the official API structure.
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  USD: '$',
+  EUR: '€',
+  GBP: '£',
+  JPY: '¥',
+  CAD: 'C$',
+  AUD: 'A$',
+  CHF: 'CHF',
+  CNY: '元',
+  INR: '₹',
+  AED: 'AED',
+  NGN: '₦',
+  GHS: '₵',
+  ZAR: 'R',
+  KES: 'KSh',
+  EGP: 'E£'
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const { aiId, message, sessionId, history } = await req.json()
+    const apiKey = process.env.GEMINI_API_KEY || ''
+    const { aiId, message, sessionId, history, visitorEmail } = await req.json()
 
     if (!aiId || !message || !sessionId) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 })
     }
 
-    // 1. Fetch AI details
+    // 1. Fetch AI details (including location)
     const { data: ai, error: aiError } = await supabase
       .from('business_ais')
-      .select('name, theme_settings')
+      .select('name, theme_settings, location')
       .eq('id', aiId)
       .single()
 
@@ -44,7 +40,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'AI Assistant not found' }, { status: 404 })
     }
 
-    // 2. Fetch all sources for this AI
+    // 2. Fetch the visitor's full chat history across sessions if visitorEmail is provided
+    let customerHistoryText = ''
+    if (visitorEmail) {
+      const { data: sessions } = await supabase
+        .from('chat_sessions')
+        .select('id')
+        .eq('ai_id', aiId)
+        .eq('visitor_email', visitorEmail)
+
+      if (sessions && sessions.length > 0) {
+        const sessionIds = sessions.map(s => s.id)
+        const { data: pastMsgs } = await supabase
+          .from('chat_messages')
+          .select('role, content, created_at')
+          .in('session_id', sessionIds)
+          .order('created_at', { ascending: true })
+
+        if (pastMsgs && pastMsgs.length > 0) {
+          customerHistoryText = pastMsgs.map(m => {
+            const dateStr = new Date(m.created_at).toLocaleDateString()
+            return `[Session ${dateStr}] ${m.role === 'user' ? 'Customer' : 'AI'}: ${m.content}`
+          }).join('\n')
+        }
+      }
+    }
+
+    // 3. Fetch all sources for this AI
     const { data: sources, error: sourcesError } = await supabase
       .from('business_sources')
       .select('title, content, category')
@@ -64,9 +86,15 @@ export async function POST(req: NextRequest) {
         const parsed = JSON.parse(profileRow.content)
         const companyInfo: any[] = parsed.company_info || []
         const goodsServices: any[] = parsed.goods_services || []
+        const curCode = parsed.currency || 'USD'
+        const curSymbol = CURRENCY_SYMBOLS[curCode] || '$'
 
         businessProfileContext += '### BUSINESS PROFILE\n\n'
         
+        if (ai.location) {
+          businessProfileContext += `**Location / Address**: ${ai.location}\n\n`
+        }
+
         if (companyInfo.length > 0) {
           businessProfileContext += '#### COMPANY INFORMATION\n'
           companyInfo.forEach((b: any) => {
@@ -90,9 +118,9 @@ export async function POST(req: NextRequest) {
                     : item.discountType === 'value'
                       ? Math.max(0, item.price - item.discountValue)
                       : item.price
-                  let priceStr = `$${finalPrice.toFixed(2)}`
+                  let priceStr = `${curSymbol}${finalPrice.toFixed(2)}`
                   if (item.discountType !== 'none') {
-                    priceStr += ` (Reduced from $${item.price.toFixed(2)})`
+                    priceStr += ` (Reduced from ${curSymbol}${item.price.toFixed(2)})`
                   }
                   output += `${indent}  - Item: ${item.name} | Price: ${priceStr}\n`
                   if (item.description) {
@@ -114,15 +142,14 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 3. Token-saving RAG / Source Selection for remaining flat sources
+    // 4. Token-saving RAG / Source Selection for remaining flat sources
     let selectedSources = remainingSources || []
     
-    // Calculate total character count
+    // Calculate total character count of remaining sources
     const totalChars = selectedSources.reduce((acc, s) => acc + (s.title.length + s.content.length), 0)
 
     // If remaining knowledge base is larger than 8,000 characters (~1,500 tokens), search and rank
     if (totalChars > 8000) {
-      // Local lightweight search: Score each block based on word intersections with user query
       const queryWords = message.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter((w: string) => w.length > 2)
       
       const scoredSources = selectedSources.map(s => {
@@ -131,9 +158,8 @@ export async function POST(req: NextRequest) {
         const contentLower = s.content.toLowerCase()
         
         queryWords.forEach((word: string) => {
-          if (titleLower.includes(word)) score += 10 // Higher weight for title match
+          if (titleLower.includes(word)) score += 10
           if (contentLower.includes(word)) {
-            // Count occurrences
             const matches = contentLower.split(word).length - 1
             score += matches * 2
           }
@@ -141,12 +167,11 @@ export async function POST(req: NextRequest) {
         return { ...s, score }
       })
 
-      // Sort by score descending and take the top 5 relevant sources
       scoredSources.sort((a, b) => b.score - a.score)
       selectedSources = scoredSources.slice(0, 5)
     }
 
-    // 4. Format remaining sources into a readable text block
+    // Format remaining sources into a readable text block
     const remainingSourcesContext = selectedSources.map((s, idx) => {
       return `ADDITIONAL SOURCE ${idx + 1}: [Title: ${s.title}] (Category: ${s.category})\nContent:\n${s.content}\n---`
     }).join('\n\n')
@@ -167,22 +192,26 @@ export async function POST(req: NextRequest) {
       .select('id')
       .single()
 
-    // 6. Call Gemini 3.5 Flash via Google SDK
+    // 6. Call Gemini 3.5 Flash via Google SDK with Salesperson System Instructions
     const aiClient = new GoogleGenerativeAI(apiKey)
     const model = aiClient.getGenerativeModel({
       model: 'gemini-3.5-flash',
-      systemInstruction: `You are the official AI Assistant for ${ai.name}.
-Your job is to answer customer questions using ONLY the provided business sources.
+      systemInstruction: `You are the official AI Assistant and the world's best sales marketer for ${ai.name}.
+Your job is to answer customer questions using ONLY the provided business sources and catalog, maximize sales conversion, and cross-sell related products.
 
-CRITICAL RULES:
-1. Answer questions using ONLY the facts explicitly stated in the sources provided below.
-2. If the answer cannot be found in the sources, reply exactly with: "I'm sorry, I don't have that information. I am only trained to answer questions about ${ai.name} based on official business records."
-3. Do not make up, speculate, or extrapolate details that are not in the sources.
-4. Do not answer questions that are unrelated to the business or its services/products. If a user asks general queries (e.g. "Write a Python script", "Explain photosynthesis", etc.), respond with the refusal message above.
-5. Keep your answers concise, clear, and professional.
+CRITICAL RULES & SELLING STRATEGY:
+1. Answer questions using ONLY the facts explicitly stated in the business sources and catalog below.
+2. Refusal Rule: If they ask something completely unrelated to the business (e.g. "write a python script", "explain photosynthesis"), reply exactly with: "I'm sorry, I don't have that information. I am only trained to answer questions about ${ai.name} based on official business records."
+3. Alternative Recommendation Rule (VERY IMPORTANT): If a customer asks for a product, size, or color we do NOT have in our catalog, do NOT just say "we don't have it." Look for similar or related items in that same niche from our catalog and suggest them enthusiastically.
+   Example: If they ask for a "blue Chanel bag" and we only have a "red Gucci bag", say: "We don't have a blue Chanel bag right now, but we have a stunning red Gucci bag that matches that elegant style, or a blue wallet that could complement it!"
+4. Cross-Selling Rule (VERY IMPORTANT): Suggest matching accessories or complementary items. If they order a bag, ask if they need shoes or a wallet to go with it. Gently suggest matching items from the catalog throughout the conversation.
+5. Customer Context Rule: Review the provided CUSTOMER CONVERSATION HISTORY. If they refer to past orders or questions (e.g., "the shoe I ordered last month, do you still have it?"), locate that item in the history, verify its availability in the current catalog, and answer appropriately.
 
 OFFICIAL BUSINESS SOURCES:
-${finalContext || 'No business information has been uploaded yet.'}`,
+${finalContext || 'No business information has been uploaded yet.'}
+
+CUSTOMER CONVERSATION HISTORY:
+${customerHistoryText || 'This is the customer\'s first conversation.'}`,
     })
 
     // Format chat history for Gemini (roles: 'user' or 'model')
