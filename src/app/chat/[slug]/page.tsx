@@ -375,7 +375,7 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
                   className="max-w-[85%] rounded-2xl rounded-tl-none p-3.5 text-sm md:text-base leading-relaxed shadow-sm"
                   style={{ backgroundColor: theme.bubbleBot, color: theme.textColorBot }}
                 >
-                  {theme.welcomeMessage}
+                  {renderMessageContent(theme.welcomeMessage)}
                 </div>
               </div>
 
