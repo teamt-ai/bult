@@ -218,9 +218,9 @@ export default function LandingPage() {
               <Cpu className="h-6 w-6" />
             </div>
             <div>
-              <h3 className="text-xl font-bold mb-2">Token-Optimized RAG</h3>
+              <h3 className="text-xl font-bold mb-2">World-Class AI Salesperson</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                Uses Postgres full-text indexing to retrieve only relevant information, minimizing input tokens. Perfect for managing costs.
+                Create a highly persuasive, intelligent digital representative that knows your business catalog inside out. Recommend niche matches, cross-sell products, and convert visitors to buyers.
               </p>
             </div>
           </div>
@@ -231,9 +231,9 @@ export default function LandingPage() {
               <Palette className="h-6 w-6" />
             </div>
             <div>
-              <h3 className="text-xl font-bold mb-2">Professional Theming</h3>
+              <h3 className="text-xl font-bold mb-2">Custom Brand Identity</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                Let your creators pick their theme colors while maintaining structured ratios, ensuring their AI chatbot interface looks premium.
+                Make the assistant uniquely yours. Fully customize your chatbot's background theme, chat bubble styles, avatars, and welcome messages to present a unified brand experience.
               </p>
             </div>
           </div>
