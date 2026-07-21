@@ -31,6 +31,17 @@ export default function Dashboard() {
   
   const [logoUploading, setLogoUploading] = useState(false)
   const [botLogoUploading, setBotLogoUploading] = useState(false)
+  const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({})
+
+  const handleCopyLink = (slug: string, id: string) => {
+    if (typeof window === 'undefined') return
+    const link = `${window.location.origin}/chat/${slug}`
+    navigator.clipboard.writeText(link)
+    setCopiedStates(prev => ({ ...prev, [id]: true }))
+    setTimeout(() => {
+      setCopiedStates(prev => ({ ...prev, [id]: false }))
+    }, 2000)
+  }
 
   useEffect(() => {
     // Get Session
@@ -511,14 +522,16 @@ export default function Dashboard() {
                         <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">Customize</span>
                       </Link>
 
-                      <Link
-                        href={`/chat/${ai.slug}`}
-                        target="_blank"
-                        className="flex flex-col items-center justify-center p-2 rounded-xl border hover:bg-slate-50 dark:hover:bg-slate-900 transition text-center"
+                      <button
+                        onClick={() => handleCopyLink(ai.slug, ai.id)}
+                        type="button"
+                        className="flex flex-col items-center justify-center p-2 rounded-xl border hover:bg-slate-50 dark:hover:bg-slate-900 transition text-center focus:outline-none"
                       >
-                        <Link2 className="h-4 w-4 text-slate-500 mb-1" />
-                        <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">Public Link</span>
-                      </Link>
+                        <Link2 className={`h-4 w-4 mb-1 transition-colors duration-200 ${copiedStates[ai.id] ? 'text-green-500' : 'text-slate-500'}`} />
+                        <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 transition-colors duration-200">
+                          {copiedStates[ai.id] ? 'Copied!' : 'Public Link'}
+                        </span>
+                      </button>
                     </div>
                   </div>
                 ))}
