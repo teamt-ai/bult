@@ -65,7 +65,7 @@ export default function LandingPage() {
         </div>
 
         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight max-w-4xl mx-auto leading-tight">
-          Bult your own custom AI for your <span className="gradient-text">Business</span>
+          <span className="text-[1.08em] font-black tracking-tight inline-block mr-1">Bult</span> your own custom AI for your <span className="gradient-text">Business</span>
         </h1>
         
         <p className="mt-6 text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto font-medium">
@@ -91,9 +91,6 @@ export default function LandingPage() {
             <div>
               <span className="text-xs uppercase tracking-wider font-bold text-primary">Creator Panel</span>
               <h2 className="text-3xl font-extrabold mt-1">Knowledge Source</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-                This is what the business owner entered in their dashboard dashboard.
-              </p>
             </div>
 
             <div className="space-y-4">
@@ -192,7 +189,7 @@ export default function LandingPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="text-xs uppercase tracking-wider font-extrabold text-primary">Engineered Excellence</span>
-          <h2 className="text-4xl font-extrabold mt-2">Engineered for world class businesses</h2>
+          <h2 className="text-4xl font-extrabold mt-2">Engineered for <span className="gradient-text">world class</span> businesses</h2>
           <p className="text-slate-500 dark:text-slate-400 mt-4 text-base">
             Every layer of Bult is optimized to give customers accurate details and maximum conversion.
           </p>
@@ -243,11 +240,10 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t py-12 glass mt-12">
         <div className="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 dark:text-slate-400 space-y-4">
-          <div className="flex justify-center items-center space-x-2 font-bold text-sm">
-            <Bot className="h-4 w-4 text-primary" />
-            <span>Bult.AI</span>
+          <div className="flex justify-center items-center font-bold text-sm">
+            <span>Bul<span className="gradient-text">t</span></span>
           </div>
-          <p>© {new Date().getFullYear()} Bult AI. Created with Google Gemini 3.5 Flash.</p>
+          <p>© {new Date().getFullYear()} Bult. Created with Google Gemini 1.5 Flash.</p>
         </div>
       </footer>
     </div>

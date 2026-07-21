@@ -213,11 +213,10 @@ export default function Dashboard() {
           <div className="max-w-md mx-auto mt-12 bg-white dark:bg-slate-950 rounded-3xl border shadow-2xl overflow-hidden card-gradient">
             <div className="p-8">
               <div className="text-center mb-8">
-                <div className="inline-flex p-3 bg-blue-500/10 text-primary rounded-2xl mb-4">
-                  <Bot className="h-6 w-6" />
-                </div>
-                <h2 className="text-2xl font-bold tracking-tight">Welcome to Bult AI</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                <h2 className="text-3xl font-black tracking-tight">
+                  Welcome to Bul<span className="gradient-text">t</span>
+                </h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
                   {isSignUp ? 'Create your business owner account' : 'Sign in to manage your custom AIs'}
                 </p>
               </div>

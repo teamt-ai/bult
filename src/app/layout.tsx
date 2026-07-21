@@ -3,7 +3,7 @@ import './globals.css'
 import ThemeWrapper from '@/components/ThemeWrapper'
 
 export const metadata: Metadata = {
-  title: 'Bult AI - Create Custom Business AI Chatbots',
+  title: 'Bult - Create Custom Business AI Chatbots',
   description: 'Create custom ChatGPT-style AI chatbots trained exclusively on your business information. Zero hallucination, fast, and token-optimized.',
 }
 

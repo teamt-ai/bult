@@ -3,7 +3,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ThemeContext } from './ThemeWrapper'
-import { Bot, Sun, Moon, Sparkles, User, LogOut } from 'lucide-react'
+import { Sun, Moon, Sparkles, User, LogOut } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 export default function Navbar() {
@@ -29,12 +29,9 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full glass border-b transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center space-x-2 text-xl font-bold tracking-tight">
-          <div className="p-2 rounded-xl gradient-btn flex items-center justify-center">
-            <Bot className="h-5 w-5" />
-          </div>
-          <span className="font-extrabold">
-            Bult<span className="gradient-text">.AI</span>
+        <Link href="/" className="text-xl font-bold tracking-tight">
+          <span className="font-extrabold text-2xl">
+            Bul<span className="gradient-text">t</span>
           </span>
         </Link>
 
