@@ -205,9 +205,9 @@ export default function LandingPage() {
               <Database className="h-6 w-6" />
             </div>
             <div>
-              <h3 className="text-xl font-bold mb-2">Flexible Sources</h3>
+              <h3 className="text-xl font-bold mb-2">Visual Business Builder</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                Add products, services, opening hours, return policies, updates, promos. Input anything about your business and edit at any time.
+                Add products, services, opening hours, return policies, and FAQs. Model your business visually using a hierarchical catalog category tree.
               </p>
             </div>
           </div>

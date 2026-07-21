@@ -54,13 +54,73 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch knowledge sources' }, { status: 500 })
     }
 
-    // 3. Token-saving RAG / Source Selection
-    let selectedSources = sources || []
+    // Extract structured business profile if present
+    const profileRow = sources?.find(s => s.category === 'business_profile')
+    const remainingSources = sources?.filter(s => s.category !== 'business_profile') || []
+
+    let businessProfileContext = ''
+    if (profileRow) {
+      try {
+        const parsed = JSON.parse(profileRow.content)
+        const companyInfo: any[] = parsed.company_info || []
+        const goodsServices: any[] = parsed.goods_services || []
+
+        businessProfileContext += '### BUSINESS PROFILE\n\n'
+        
+        if (companyInfo.length > 0) {
+          businessProfileContext += '#### COMPANY INFORMATION\n'
+          companyInfo.forEach((b: any) => {
+            businessProfileContext += `- **${b.title}**: ${b.content.replace(/\n/g, ' ')}\n`
+          })
+          businessProfileContext += '\n'
+        }
+
+        if (goodsServices.length > 0) {
+          businessProfileContext += '#### GOODS & SERVICES CATALOG\n'
+          
+          const formatCatalog = (categories: any[], depth: number = 0): string => {
+            let output = ''
+            const indent = '  '.repeat(depth)
+            categories.forEach(cat => {
+              output += `${indent}- Category: ${cat.name}\n`
+              if (cat.items && cat.items.length > 0) {
+                cat.items.forEach((item: any) => {
+                  const finalPrice = item.discountType === 'percent' 
+                    ? item.price * (1 - item.discountValue / 100)
+                    : item.discountType === 'value'
+                      ? Math.max(0, item.price - item.discountValue)
+                      : item.price
+                  let priceStr = `$${finalPrice.toFixed(2)}`
+                  if (item.discountType !== 'none') {
+                    priceStr += ` (Reduced from $${item.price.toFixed(2)})`
+                  }
+                  output += `${indent}  - Item: ${item.name} | Price: ${priceStr}\n`
+                  if (item.description) {
+                    output += `${indent}    Description: ${item.description}\n`
+                  }
+                })
+              }
+              if (cat.subcategories && cat.subcategories.length > 0) {
+                output += formatCatalog(cat.subcategories, depth + 1)
+              }
+            })
+            return output
+          }
+
+          businessProfileContext += formatCatalog(goodsServices, 0)
+        }
+      } catch (e) {
+        console.error('Failed to parse business profile JSON:', e)
+      }
+    }
+
+    // 3. Token-saving RAG / Source Selection for remaining flat sources
+    let selectedSources = remainingSources || []
     
     // Calculate total character count
     const totalChars = selectedSources.reduce((acc, s) => acc + (s.title.length + s.content.length), 0)
 
-    // If knowledge base is larger than 8,000 characters (~1,500 tokens), search and rank
+    // If remaining knowledge base is larger than 8,000 characters (~1,500 tokens), search and rank
     if (totalChars > 8000) {
       // Local lightweight search: Score each block based on word intersections with user query
       const queryWords = message.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter((w: string) => w.length > 2)
@@ -86,10 +146,15 @@ export async function POST(req: NextRequest) {
       selectedSources = scoredSources.slice(0, 5)
     }
 
-    // 4. Format sources into a readable text block
-    const sourcesContext = selectedSources.map((s, idx) => {
-      return `SOURCE ${idx + 1}: [Title: ${s.title}] (Category: ${s.category})\nContent:\n${s.content}\n---`
+    // 4. Format remaining sources into a readable text block
+    const remainingSourcesContext = selectedSources.map((s, idx) => {
+      return `ADDITIONAL SOURCE ${idx + 1}: [Title: ${s.title}] (Category: ${s.category})\nContent:\n${s.content}\n---`
     }).join('\n\n')
+
+    const finalContext = [
+      businessProfileContext,
+      remainingSourcesContext ? `### ADDITIONAL INFORMATION\n\n${remainingSourcesContext}` : ''
+    ].filter(Boolean).join('\n\n')
 
     // 5. Save the User's Message in Supabase (runs asynchronously)
     const { data: userMsgData } = await supabase
@@ -117,7 +182,7 @@ CRITICAL RULES:
 5. Keep your answers concise, clear, and professional.
 
 OFFICIAL BUSINESS SOURCES:
-${sourcesContext || 'No business information has been uploaded yet.'}`,
+${finalContext || 'No business information has been uploaded yet.'}`,
     })
 
     // Format chat history for Gemini (roles: 'user' or 'model')

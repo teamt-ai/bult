@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import Navbar from '@/components/Navbar'
 import { supabase } from '@/lib/supabase'
-import { Plus, Bot, Link2, Settings, Database, MessageSquare, ChevronRight, Eye, RefreshCw, AlertCircle } from 'lucide-react'
+import { Plus, Bot, Link2, Settings, Database, MessageSquare, ChevronRight, Eye, RefreshCw, AlertCircle, LayoutGrid } from 'lucide-react'
 import Link from 'next/link'
 
 export default function Dashboard() {
@@ -364,11 +364,11 @@ export default function Dashboard() {
 
                     <div className="mt-6 pt-6 border-t grid grid-cols-3 gap-2">
                       <Link
-                        href={`/dashboard/${ai.id}/sources`}
+                        href={`/dashboard/${ai.id}/build`}
                         className="flex flex-col items-center justify-center p-2 rounded-xl border hover:bg-slate-50 dark:hover:bg-slate-900 transition text-center"
                       >
-                        <Database className="h-4 w-4 text-slate-500 mb-1" />
-                        <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">Sources</span>
+                        <LayoutGrid className="h-4 w-4 text-slate-500 mb-1" />
+                        <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">Build</span>
                       </Link>
 
                       <Link
