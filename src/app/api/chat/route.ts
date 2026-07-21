@@ -21,7 +21,7 @@ const apiKey = process.env.GEMINI_API_KEY || ''
 // import { GoogleGenAI } from '@google/generative-ai'
 // Wait! The constructor in `@google/generative-ai` is `GoogleGenAI` in version 0.21.0:
 // const ai = new GoogleGenAI({ apiKey })
-// const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' })
+// const model = ai.getGenerativeModel({ model: 'gemini-3.5-flash' })
 // Let's double check this. Yes!
 // Let's write the route code using the official API structure.
 
@@ -102,10 +102,10 @@ export async function POST(req: NextRequest) {
       .select('id')
       .single()
 
-    // 6. Call Gemini 2.5 Flash via Google SDK
+    // 6. Call Gemini 3.5 Flash via Google SDK
     const aiClient = new GoogleGenerativeAI(apiKey)
     const model = aiClient.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.5-flash',
       systemInstruction: `You are the official AI Assistant for ${ai.name}.
 Your job is to answer customer questions using ONLY the provided business sources.
 

@@ -33,7 +33,7 @@ export default function LandingPage() {
     setInputValue('')
     setIsTyping(true)
 
-    // Simulate AI thinking (RAG and Gemini 2.5 Flash mimic)
+    // Simulate AI thinking (RAG and Gemini 3.5 Flash mimic)
     setTimeout(() => {
       let reply = ""
       const q = text.toLowerCase()
@@ -61,7 +61,7 @@ export default function LandingPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 text-center">
         <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full border bg-slate-50 dark:bg-slate-900 text-xs font-semibold mb-6 animate-pulse">
           <Sparkles className="h-3.5 w-3.5 text-primary" />
-          <span>Powered by Gemini 2.5 Flash API</span>
+          <span>Powered by Gemini 3.5 Flash API</span>
         </div>
 
         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight max-w-4xl mx-auto leading-tight">
@@ -247,7 +247,7 @@ export default function LandingPage() {
             <Bot className="h-4 w-4 text-primary" />
             <span>Bult.AI</span>
           </div>
-          <p>© {new Date().getFullYear()} Bult AI. Created with Google Gemini 2.5 Flash.</p>
+          <p>© {new Date().getFullYear()} Bult AI. Created with Google Gemini 3.5 Flash.</p>
         </div>
       </footer>
     </div>
