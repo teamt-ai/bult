@@ -185,7 +185,8 @@ export default function PublicChat({ params }: { params: { slug: string } }) {
     }
   }
 
-  const renderMessageContent = (content: string) => {
+  const renderMessageContent = (content: string | null | undefined) => {
+    if (!content) return ''
     // Regex to match markdown images: ![alt](url)
     const imgRegex = /!\[(.*?)\]\((.*?)\)/g
     const parts = []
