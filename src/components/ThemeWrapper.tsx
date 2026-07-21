@@ -14,14 +14,21 @@ export default function ThemeWrapper({ children }: { children: React.ReactNode }
 
     // 2. Set up dark mode based on system preference or local storage
     const stored = localStorage.getItem('bult-theme-mode') as 'light' | 'dark' | null
+    let activeMode: 'light' | 'dark' = 'dark'
     if (stored) {
-      setThemeMode(stored)
-      document.documentElement.className = stored
+      activeMode = stored
     } else {
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      const defaultMode = prefersDark ? 'dark' : 'light'
-      setThemeMode(defaultMode)
-      document.documentElement.className = defaultMode
+      activeMode = prefersDark ? 'dark' : 'light'
+    }
+
+    setThemeMode(activeMode)
+    if (activeMode === 'dark') {
+      document.documentElement.classList.add('dark')
+      document.documentElement.classList.remove('light')
+    } else {
+      document.documentElement.classList.add('light')
+      document.documentElement.classList.remove('dark')
     }
 
     setMounted(true)
@@ -31,7 +38,13 @@ export default function ThemeWrapper({ children }: { children: React.ReactNode }
     const nextMode = themeMode === 'light' ? 'dark' : 'light'
     setThemeMode(nextMode)
     localStorage.setItem('bult-theme-mode', nextMode)
-    document.documentElement.className = nextMode
+    if (nextMode === 'dark') {
+      document.documentElement.classList.add('dark')
+      document.documentElement.classList.remove('light')
+    } else {
+      document.documentElement.classList.add('light')
+      document.documentElement.classList.remove('dark')
+    }
   }
 
   // Prevent flash by showing layout wrapper immediately but keeping style static till hydrated

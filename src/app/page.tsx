@@ -90,7 +90,7 @@ export default function LandingPage() {
           <div className="md:col-span-5 space-y-6">
             <div>
               <span className="text-xs uppercase tracking-wider font-bold text-primary">Creator Panel</span>
-              <h2 className="text-3xl font-extrabold mt-1">Knowledge Source</h2>
+              <h2 className="text-3xl font-extrabold mt-1 text-slate-900 dark:text-white">Knowledge Source</h2>
             </div>
 
             <div className="space-y-4">
@@ -202,7 +202,7 @@ export default function LandingPage() {
               <Database className="h-6 w-6" />
             </div>
             <div>
-              <h3 className="text-xl font-bold mb-2">Visual Business Builder</h3>
+              <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">Visual Business Builder</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
                 Add products, services, opening hours, return policies, and FAQs. Model your business visually using a hierarchical catalog category tree.
               </p>
@@ -215,7 +215,7 @@ export default function LandingPage() {
               <Cpu className="h-6 w-6" />
             </div>
             <div>
-              <h3 className="text-xl font-bold mb-2">World-Class AI Salesperson</h3>
+              <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">World-Class AI Salesperson</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
                 Create a highly persuasive, intelligent digital representative that knows your business catalog inside out. Recommend niche matches, cross-sell products, and convert visitors to buyers.
               </p>
@@ -228,7 +228,7 @@ export default function LandingPage() {
               <Palette className="h-6 w-6" />
             </div>
             <div>
-              <h3 className="text-xl font-bold mb-2">Custom Brand Identity</h3>
+              <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">Custom Brand Identity</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
                 Make the assistant uniquely yours. Fully customize your chatbot's background theme, chat bubble styles, avatars, and welcome messages to present a unified brand experience.
               </p>
