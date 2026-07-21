@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import Navbar from '@/components/Navbar'
 import { supabase } from '@/lib/supabase'
-import { Plus, Bot, Link2, Settings, Database, MessageSquare, ChevronRight, Eye, RefreshCw, AlertCircle, LayoutGrid } from 'lucide-react'
+import { Plus, Bot, Link2, Settings, Database, MessageSquare, ChevronRight, Eye, RefreshCw, AlertCircle, LayoutGrid, Upload, Building, MapPin } from 'lucide-react'
 import Link from 'next/link'
 
 export default function Dashboard() {
@@ -23,7 +23,14 @@ export default function Dashboard() {
   const [newAiName, setNewAiName] = useState('')
   const [newAiSlug, setNewAiSlug] = useState('')
   const [newAiDesc, setNewAiDesc] = useState('')
+  const [newAiLocation, setNewAiLocation] = useState('')
+  const [newAiLogoUrl, setNewAiLogoUrl] = useState('')
+  const [newAiBotName, setNewAiBotName] = useState('')
+  const [newAiBotLogoUrl, setNewAiBotLogoUrl] = useState('')
   const [createError, setCreateError] = useState('')
+  
+  const [logoUploading, setLogoUploading] = useState(false)
+  const [botLogoUploading, setBotLogoUploading] = useState(false)
 
   useEffect(() => {
     // Get Session
@@ -93,6 +100,54 @@ export default function Dashboard() {
     }
   }
 
+  const uploadImageToStorage = async (file: File): Promise<string> => {
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${Math.random().toString(36).substring(2, 9)}.${fileExt}`
+    const filePath = `new-ai-temp/${fileName}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('business-assets')
+      .upload(filePath, file)
+
+    if (uploadError) {
+      throw uploadError
+    }
+
+    const { data } = supabase.storage
+      .from('business-assets')
+      .getPublicUrl(filePath)
+
+    return data.publicUrl
+  }
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setLogoUploading(true)
+    try {
+      const url = await uploadImageToStorage(file)
+      setNewAiLogoUrl(url)
+    } catch (err: any) {
+      alert('Logo upload failed: ' + err.message)
+    } finally {
+      setLogoUploading(false)
+    }
+  }
+
+  const handleBotLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setBotLogoUploading(true)
+    try {
+      const url = await uploadImageToStorage(file)
+      setNewAiBotLogoUrl(url)
+    } catch (err: any) {
+      alert('AI Logo upload failed: ' + err.message)
+    } finally {
+      setBotLogoUploading(false)
+    }
+  }
+
   const handleCreateAi = async (e: React.FormEvent) => {
     e.preventDefault()
     setCreateError('')
@@ -112,9 +167,13 @@ export default function Dashboard() {
     }
 
     const { data, error } = await supabase.from('business_ais').insert({
-      name: newAiName,
+      name: newAiName.trim(),
       slug: slug,
-      description: newAiDesc,
+      description: newAiDesc.trim(),
+      location: newAiLocation.trim(),
+      logo_url: newAiLogoUrl,
+      ai_name: newAiBotName.trim(),
+      ai_logo_url: newAiBotLogoUrl,
       creator_id: user.id
     }).select().single()
 
@@ -125,6 +184,10 @@ export default function Dashboard() {
       setNewAiName('')
       setNewAiSlug('')
       setNewAiDesc('')
+      setNewAiLocation('')
+      setNewAiLogoUrl('')
+      setNewAiBotName('')
+      setNewAiBotLogoUrl('')
       fetchAis(user.id)
     }
   }
@@ -240,7 +303,7 @@ export default function Dashboard() {
             {/* Create Dialog Overlay */}
             {isCreating && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                <div className="bg-white dark:bg-slate-950 border max-w-lg w-full rounded-3xl p-6 md:p-8 shadow-2xl relative">
+                <div className="bg-white dark:bg-slate-950 border max-w-lg w-full rounded-3xl p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
                   <h3 className="text-2xl font-bold mb-2">Create New Assistant</h3>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
                     Name your assistant and pick a unique web link for customers.
@@ -270,6 +333,76 @@ export default function Dashboard() {
                         }}
                         className="w-full bg-slate-50 dark:bg-slate-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                       />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Business Logo</label>
+                      <div className="flex items-center gap-4 mt-1">
+                        <div className="w-12 h-12 rounded-xl border bg-slate-50 dark:bg-slate-900 flex items-center justify-center overflow-hidden shrink-0">
+                          {newAiLogoUrl ? (
+                            <img src={newAiLogoUrl} alt="Logo" className="w-full h-full object-cover" />
+                          ) : (
+                            <Building className="h-5 w-5 text-slate-300" />
+                          )}
+                        </div>
+                        <label className="relative cursor-pointer inline-flex items-center space-x-1.5 px-3 py-2 border rounded-xl text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                          {logoUploading ? (
+                            <RefreshCw className="h-3 w-3 animate-spin text-primary" />
+                          ) : (
+                            <Upload className="h-3 w-3" />
+                          )}
+                          <span>{logoUploading ? 'Uploading...' : 'Upload Business Logo'}</span>
+                          <input type="file" accept="image/*" onChange={handleLogoUpload} disabled={logoUploading} className="hidden" />
+                        </label>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 uppercase mb-1">AI Assistant Name</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Barista Bot"
+                        value={newAiBotName}
+                        onChange={(e) => setNewAiBotName(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-slate-900 border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 uppercase mb-1">AI Assistant Logo</label>
+                      <div className="flex items-center gap-4 mt-1">
+                        <div className="w-12 h-12 rounded-xl border bg-slate-50 dark:bg-slate-900 flex items-center justify-center overflow-hidden shrink-0">
+                          {newAiBotLogoUrl ? (
+                            <img src={newAiBotLogoUrl} alt="AI Logo" className="w-full h-full object-cover" />
+                          ) : (
+                            <Bot className="h-5 w-5 text-slate-300" />
+                          )}
+                        </div>
+                        <label className="relative cursor-pointer inline-flex items-center space-x-1.5 px-3 py-2 border rounded-xl text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                          {botLogoUploading ? (
+                            <RefreshCw className="h-3 w-3 animate-spin text-primary" />
+                          ) : (
+                            <Upload className="h-3 w-3" />
+                          )}
+                          <span>{botLogoUploading ? 'Uploading...' : 'Upload AI Logo'}</span>
+                          <input type="file" accept="image/*" onChange={handleBotLogoUpload} disabled={botLogoUploading} className="hidden" />
+                        </label>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Location / Address</label>
+                      <div className="flex items-center bg-slate-50 dark:bg-slate-900 border rounded-xl px-3 focus-within:ring-1 focus-within:ring-primary">
+                        <MapPin className="h-4 w-4 text-slate-400 shrink-0 mr-2" />
+                        <input
+                          type="text"
+                          placeholder="e.g. 12 Bridge Street, London, or Online Only"
+                          value={newAiLocation}
+                          onChange={(e) => setNewAiLocation(e.target.value)}
+                          className="flex-1 bg-transparent border-0 outline-none py-2.5 text-sm focus:ring-0"
+                        />
+                      </div>
                     </div>
 
                     <div>
