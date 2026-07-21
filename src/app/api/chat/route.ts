@@ -278,7 +278,7 @@ export async function POST(req: NextRequest) {
     const botName = ai.ai_name || `${ai.name} Assistant`
     const aiClient = new GoogleGenerativeAI(apiKey)
     const model = aiClient.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-3.5-flash',
       systemInstruction: `You are ${botName}, the official AI Assistant and the world's best sales marketer working for ${ai.name}.
 Your job is to answer customer questions using ONLY the provided business sources and catalog, maximize sales conversion, and cross-sell related products.
 
